@@ -2,17 +2,16 @@ import express, { NextFunction, Response, Request } from 'express';
 import apiStatusCodes from '../utils/ApiStatusCodes';
 import ApiResponse from '../utils/ApiResponse';
 import { ValidationError } from 'express-validation';
+import { validationErrorWrapper } from './exceptionHandler';
+
+import userRoutes from '../controllers/users';
 
 
 const indexRoutes = express.Router();
 
-indexRoutes.use(function (err, req: Request, res: Response, next: NextFunction) {
-  if (err instanceof ValidationError) {
-    return res.status(err.statusCode).json(err)
-  }
+indexRoutes.use('/users', userRoutes);
+indexRoutes.use(validationErrorWrapper);
 
-  return res.status(apiStatusCodes.serverError).json(err)
-})
 
 indexRoutes.get('/', (req, res) => {
   return ApiResponse.send(res, apiStatusCodes.success, 'This app is running.');

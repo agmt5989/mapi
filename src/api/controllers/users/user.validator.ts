@@ -14,6 +14,13 @@ export const createPasswordRequestSchema = {
   }),
 }
 
+export const confirmEmailSchema = {
+  body: Joi.object({
+    email: Joi.string().required(),
+    otp: Joi.string().required(),
+  }),
+}
+
 export const loginUserRequestSchema = {
   body: Joi.object({
     userId: Joi.string().required(),

@@ -1,4 +1,5 @@
 import { IGetStartedRequest } from '../../typing/IUser';
+import bcrypt from 'bcrypt';
 import Logger from '../../utils/logger';
 import Customer, { ICustomer } from '../../models/customers';
 import { generateRandomString } from '../../utils';
@@ -11,18 +12,18 @@ export class UserService {
 
   constructor() {}
 
-  public async getStarted(requestBody: IGetStartedRequest): Promise<ICustomer | boolean{
+  public async getStarted(requestBody: IGetStartedRequest): Promise<ICustomer | null> {
 
     const { phone, bvn } = requestBody;
 
     const customer = await Customer.findOne({ bvn, phone });
 
-    if(!customer) return false;
+    if(!customer) return null;
 
     const emailOTP = generateRandomString(6, 'numbers');
     await Customer.findByIdAndUpdate(customer.id, { emailOTP });
 
-    this.sendVerifcationLink(emailOTP, customer);
+    this.sendVerifcationCode(emailOTP, customer);
     return customer;
   }
 
@@ -42,7 +43,25 @@ export class UserService {
     return true;
   }
 
-  private async sendVerifcationLink(emailOTP: string, customer: ICustomer) {
+  public async createPassword(password: string, email: string): Promise<boolean> {
+
+    const passwordHash = bcrypt.hash(password, 10);
+
+    const customer = await Customer.findOneAndUpdate({
+      emailVerified: true,
+      email
+    }, {
+      password: passwordHash,
+      canAccessPortal: true
+    });
+ 
+    if (!customer) return false;
+
+    return true;
+
+  }
+
+  private async sendVerifcationCode(emailOTP: string, customer: ICustomer) {
     // TODO: Confirm mailing template for OTP
     await new Mailing()
       .send({

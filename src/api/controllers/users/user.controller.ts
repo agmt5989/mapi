@@ -58,6 +58,24 @@ export class UserController {
 
   public createPassword = async (request: Request, response: Response, next: NextFunction) => {
 
+    try {
+
+      const { password, confirmPassword } = request.body;
+
+      if(password !== confirmPassword) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 'Passwords must match'); 
+      if(password > 8) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 'Passwords must be greater than 8 characters'); 
+
+      const result = await this.userService.createPassword(password, request.params.email);
+
+      if (!result) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 
+        `Could not choose password successfully for ${request.params.email}, please ensure the email is verified`); 
+
+      ApiResponse.success(response, ApiStatusCodes.success, null,`Successfully set password for ${request.params.email}`)
+
+    } catch (error: Error | any) {
+      this.logger.log(error.message);
+      next(error)
+    }
   }
 
   public resendVerficationLink = async (request: Request, response: Response, next: NextFunction) => 
