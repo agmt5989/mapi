@@ -3,6 +3,7 @@ import { timestamps } from '../utils';
 import { IApp } from './apps/apps';
 import { IAccount } from './account';
 import { IBusiness } from './business';
+import { boolean } from 'joi';
 
 export interface ICustomer extends mongoose.Document {
   firstName: string;
@@ -53,6 +54,18 @@ const mCustomerSchema = new mongoose.Schema(
     bvn: {
       type: String,
       index: true,
+    },
+    password: {
+      type: String,
+    },
+    emailOTP: String,
+    canAccessPortal: {
+      type: Boolean,
+      default: false
+    },
+    emailVerified: {
+      type: Boolean,
+      default: false
     },
     app: {
       type: mongoose.Schema.Types.ObjectId,

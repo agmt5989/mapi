@@ -38,8 +38,12 @@ export default class Logger {
   }
 
   /** logs a message */
-  public log(str: string, level: ILOGLEVEL | string = 'default'): void {
+  public log(value: string | Error, level: ILOGLEVEL | string = 'default'): void {
     const logLevel = level === 'default' ? this.logLevel : level;
-    this.logger.log(logLevel, str);
+
+    if(value instanceof Error) {
+      this.logger.log('error', value.message)
+    }
+    this.logger.log(logLevel, value);
   }
 }
