@@ -35,4 +35,8 @@ export class UserController {
     }
   }
 
+  public async resendVerficationLink(request: Request, response: Response, next: NextFunction) {
+
+  }
+
 }

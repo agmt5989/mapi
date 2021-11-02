@@ -5,3 +5,8 @@ export function sleep(ms: number) {
     return setTimeout(resolve, ms);
   });
 }
+
+export const timestamps = {
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+};
