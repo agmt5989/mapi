@@ -3,7 +3,15 @@
   "version": "1.0.0",
   "main": "build/api/index.js",
   "author": "femi alayesanmi",
+  "description": "mono portal api service for customers",
   "license": "MIT",
+  "repository": "https://github.com/withmono/mono-portal-api.git",
+  "scripts": {
+    "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/api/index.ts",
+    "start": "node build/api/index.js",
+    "test:unit": "NODE_ENV=TEST TS_NODE_FILES=true ts-mocha --exit -c --recursive -r tsconfig-paths/register -p ./tsconfig.json 'test/**.test.ts'",
+    "build": "rimraf ./build && tsc --build"
+  },
   "dependencies": {
     "@types/mailgun-js": "^0.22.12",
     "bcrypt": "^5.0.1",
