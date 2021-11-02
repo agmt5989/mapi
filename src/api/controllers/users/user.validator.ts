@@ -7,3 +7,10 @@ export const createUserRequestSchema = {
     password: Joi.string().required()
   }),
 };
+
+export const loginUserRequestSchema = {
+  body: Joi.object({
+    userId: Joi.string().required(),
+    password: Joi.string().required()
+  }),
+};
