@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 
 import { timestamps } from '../../utils/index';
 import { IBusiness } from '../business';
-import { IDataSyncSettings } from '../datasyncsettings';
 
 export enum MonoProducts {
   CONNECT = 'CONNECT',
@@ -33,12 +32,6 @@ export interface IApp extends mongoose.Document {
   industry: Array<string>;
   scopes: Array<string>;
   product: MonoProducts;
-  settings: {
-    datasync: IDataSyncSettings;
-  };
-
-  // for API request
-  datasync?: IDataSyncSettings;
 }
 
 type appStaticProps = {
