@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 
 import { timestamps } from '../../utils/index';
 import { IBusiness } from '../business';
-import { IWidgetProfile } from './widget-profile';
 import { IDataSyncSettings } from '../datasyncsettings';
 
 export enum MonoProducts {
@@ -33,8 +32,6 @@ export interface IApp extends mongoose.Document {
   linkAccountType: Array<string>;
   industry: Array<string>;
   scopes: Array<string>;
-  widgetProfile: any;
-  theme: IWidgetProfile;
   product: MonoProducts;
   settings: {
     datasync: IDataSyncSettings;
@@ -73,16 +70,11 @@ const mAppSchema = new mongoose.Schema(
     },
     displayName: String,
     redirectUri: String,
-
     live: {
       type: Boolean,
       default: false,
       index: true,
     },
-    testPubKey: String,
-    testSecKey: String,
-    livePubKey: String,
-    liveSecKey: String,
     linkAccountType: {
       type: String,
       enum: ['personal', 'business', 'all'],
@@ -94,16 +86,6 @@ const mAppSchema = new mongoose.Schema(
     },
     industry: {
       type: [String],
-      index: true,
-    },
-    widgetProfile: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'WidgetProfile',
-      index: true,
-    },
-    theme: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'WidgetProfile',
       index: true,
     },
     product: {

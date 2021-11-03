@@ -2,7 +2,7 @@ import { Joi, validate } from 'express-validation';
 
 export const createUserRequestSchema = {
   body: Joi.object({
-    bvn: Joi.string().required(),
+    bvn: Joi.string().required().length(4), // last 4 digits
     phone: Joi.string().required(),
   }),
 };
@@ -10,7 +10,6 @@ export const createUserRequestSchema = {
 export const createPasswordRequestSchema = {
   body: Joi.object({
     password: Joi.string().required(),
-    confirmPassword: Joi.string().required(),
   }),
 }
 

@@ -70,8 +70,6 @@ export class UserController {
     try {
 
       const { password, confirmPassword } = request.body;
-
-      if(password !== confirmPassword) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 'Passwords must match'); 
       if(password > 8) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 'Passwords must be greater than 8 characters'); 
 
       const result = await this.userService.createPassword(password, request.params.email);
