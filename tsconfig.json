@@ -16,7 +16,11 @@
       "baseUrl": "src",
       "esModuleInterop": true,
       "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true
+      "forceConsistentCasingInFileNames": true,
+      "typeRoots": [
+        "./src/api/typing",
+        "./node_modules/@types"
+      ]   
     },
     "paths": {
         "@redis/*": ["src/adapters/redis"],
