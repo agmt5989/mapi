@@ -49,7 +49,8 @@ export class UserService {
     try {
       const { phone, bvn } = requestBody;
 
-      const customer = await Customer.findOne({ bvn, phone });
+      // last for digits for bvn
+      const customer = await Customer.findOne({ bvn: {$regex: `${bvn}$`}, phone });
   
       if(!customer) return null;
   
