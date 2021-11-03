@@ -1,23 +1,22 @@
 import mongoose from 'mongoose';
 import { timestamps } from '../utils';
-import { IApp } from './apps/apps';
-import { IBusiness } from './business';
 
-export interface ICustomer extends mongoose.Document {
+export interface IPortalUser extends mongoose.Document {
   firstName: string;
   lastName: string;
   name: string;
   scope: Array<string>;
   email: string;
   phone: string;
-  business: IBusiness;
-  estimatedIncome: number;
   bvn: string;
-  app: IApp;
-  identity: any;
+  password?: string;
+  emailOTP: string;
+  canAccessPortal: boolean;
+  emailVerified: boolean;
+  identity?: any;
 }
 
-const mCustomerSchema = new mongoose.Schema(
+const mPortalUserSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
@@ -32,15 +31,6 @@ const mCustomerSchema = new mongoose.Schema(
       required: true,
     },
     phone: String,
-    estimatedIncome: {
-      type: Number,
-      default: 0,
-    },
-    business: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Business',
-      index: true,
-    },
     scope: {
       type: [String],
       index: true,
@@ -53,10 +43,17 @@ const mCustomerSchema = new mongoose.Schema(
       type: String,
       index: true,
     },
-    app: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'App',
-      index: true,
+    password: {
+      type: String,
+    },
+    emailOTP: String,
+    canAccessPortal: {
+      type: Boolean,
+      default: false
+    },
+    emailVerified: {
+      type: Boolean,
+      default: false
     },
     identity: {
       type: mongoose.Schema.Types.ObjectId,
@@ -67,6 +64,6 @@ const mCustomerSchema = new mongoose.Schema(
   { timestamps },
 );
 
-const Customer = mongoose.model<ICustomer>('Customer', mCustomerSchema);
+const Customer = mongoose.model<IPortalUser>('PortaUser', mPortalUserSchema);
 
 export default Customer;

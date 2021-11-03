@@ -2,6 +2,7 @@ import { IGetStartedRequest, ILoginRequest, ILoginResponse } from '../../typing/
 import bcrypt from 'bcrypt';
 import Logger from '../../utils/logger';
 import Customer, { ICustomer } from '../../models/customers';
+import PortalUser from '../../models/portalUser';
 import { generateRandomString } from '../../utils';
 import { Mailing } from '../../contrib/mailing';
 
@@ -17,11 +18,10 @@ export class UserService {
     let customer;
     try {
 
-      customer = await Customer.findOne({ email: requestBody.email }).populate({
+      customer = await PortalUser.findOne({ email: requestBody.email }).populate({
         path: 'businesses',
         select:
-          '_id firstName lastName name scope app email name phone business estimatedIncome bvn identity password',
-        populate: 'app',
+          '_id firstName lastName name email name phone bvn identity password',
       })
       .lean();
       
@@ -54,19 +54,22 @@ export class UserService {
       if(!customer) return null;
   
       const emailOTP = generateRandomString(6, 'numbers');
-      await Customer.findByIdAndUpdate(customer.id, { emailOTP });
-  
-      this.sendVerifcationCode(emailOTP, customer);
+
+      const portalUser = this.formatNewPortalUserFromCustomerData(emailOTP, customer);
+
+      const newPortalUser = new PortalUser(portalUser);
+      await newPortalUser.save();
+ 
+      this.sendVerifcationCode(emailOTP, portalUser.email, portalUser.firstName);
       return customer;
     } catch (error) {
       throw new Error(error);
     }
 
-
   }
 
   public async confirmEmail(otp: string, email: string): Promise<boolean> {
-    const customer = await Customer.findOneAndUpdate(
+    const customer = await PortalUser.findOneAndUpdate(
       { emailOTP: otp, email },
       {
         emailVerified: true,
@@ -99,25 +102,39 @@ export class UserService {
 
   }
 
-  private async sendVerifcationCode(emailOTP: string, customer: ICustomer) {
+  private formatNewPortalUserFromCustomerData(emailOTP: string, customer: ICustomer) {
+    return { 
+      firstName: customer.firstName,
+      lastName: customer.lastName,
+      name: customer.name,
+      scope: customer.scope,
+      email: customer.email,
+      phone: customer.phone,
+      bvn: customer.bvn,
+      emailOTP,
+      canAccessPortal: false,
+      emailVerified: false,
+    }
+  }
+
+  private async sendVerifcationCode(code: string, email: string, firstName: string) {
     // TODO: Confirm mailing template for OTP
     await new Mailing()
       .send({
         from: `Mono <hi@mono.co>`,
-        to: customer.email,
+        to: email,
         subject: `Please verify your email`,
         text: 'Confirm your email to continue with Mono Portal',
         template: 'confirm_account',
         templateVariables: {
-          firstName: customer.firstName,
-          email: customer.email,
-          code: emailOTP
+          firstName,
+          email,
+          code
         },
       })
       .catch(e => {
         this.logger.log(e)
       });
-
   }
 
 
