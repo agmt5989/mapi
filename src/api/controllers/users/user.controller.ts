@@ -87,8 +87,8 @@ export class UserController {
     }
   }
 
-  public resendVerficationLink = async (request: Request, response: Response, next: NextFunction) => 
-  {
+  // TODO
+  public resendVerficationLink = async (request: Request, response: Response, next: NextFunction) => {
 
   }
 
