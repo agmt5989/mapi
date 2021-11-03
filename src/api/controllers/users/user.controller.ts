@@ -3,6 +3,7 @@ import Logger from '../../utils/logger';
 import { UserService } from './user.service';
 import ApiResponse from '../../utils/ApiResponse';
 import ApiStatusCodes from '../../utils/ApiStatusCodes';
+import { generateJWT } from '../../utils';
 
 
 export class UserController {
@@ -16,6 +17,14 @@ export class UserController {
 
   public login = async (request: Request, response: Response, next: NextFunction) => {
     try {
+
+      const result = await this.userService.login(request.body);
+
+      if (result.error) return ApiResponse.error(response, ApiStatusCodes.badRequest, result.data, result.message);
+
+      const responseData = { customer: result.data, token: result.data ? generateJWT(result.data) : null }
+
+      ApiResponse.success(response, ApiStatusCodes.success, responseData, result.message);
 
       
     } catch (error: Error | any) {

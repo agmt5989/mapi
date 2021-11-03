@@ -1,4 +1,4 @@
-import { IGetStartedRequest } from '../../typing/IUser';
+import { IGetStartedRequest, ILoginRequest, ILoginResponse } from '../../typing/IUser';
 import bcrypt from 'bcrypt';
 import Logger from '../../utils/logger';
 import Customer, { ICustomer } from '../../models/customers';
@@ -12,19 +12,57 @@ export class UserService {
 
   constructor() {}
 
+  public async login(requestBody: ILoginRequest): Promise<ILoginResponse> {
+
+    let customer;
+    try {
+
+      customer = await Customer.findOne({ email: requestBody.email }).populate({
+        path: 'businesses',
+        select:
+          '_id firstName lastName name scope app email name phone business estimatedIncome bvn identity password',
+        populate: 'app',
+      })
+      .lean();
+      
+    } catch (error) {
+      return { error: true, message: error instanceof Error ? error.message : error }
+    }
+
+    if (!customer) return { error: true, message: 'Invalid email or password' };
+
+    const passwordIsValid = bcrypt.compareSync(requestBody.password, customer.password);
+    customer.password = undefined; // unset password hash from response data;
+    return passwordIsValid 
+    ? {
+      error: false,
+      message: 'Login Successful',
+      data: customer
+    } : {
+      error: true,
+      message: 'Invalid email or password',
+    }
+  }
+
   public async getStarted(requestBody: IGetStartedRequest): Promise<ICustomer | null> {
 
-    const { phone, bvn } = requestBody;
+    try {
+      const { phone, bvn } = requestBody;
 
-    const customer = await Customer.findOne({ bvn, phone });
+      const customer = await Customer.findOne({ bvn, phone });
+  
+      if(!customer) return null;
+  
+      const emailOTP = generateRandomString(6, 'numbers');
+      await Customer.findByIdAndUpdate(customer.id, { emailOTP });
+  
+      this.sendVerifcationCode(emailOTP, customer);
+      return customer;
+    } catch (error) {
+      throw new Error(error);
+    }
 
-    if(!customer) return null;
 
-    const emailOTP = generateRandomString(6, 'numbers');
-    await Customer.findByIdAndUpdate(customer.id, { emailOTP });
-
-    this.sendVerifcationCode(emailOTP, customer);
-    return customer;
   }
 
   public async confirmEmail(otp: string, email: string): Promise<boolean> {
@@ -45,7 +83,7 @@ export class UserService {
 
   public async createPassword(password: string, email: string): Promise<boolean> {
 
-    const passwordHash = bcrypt.hash(password, 10);
+    const passwordHash = bcrypt.hashSync(password, 10);
 
     const customer = await Customer.findOneAndUpdate({
       emailVerified: true,

@@ -15,6 +15,10 @@ export interface ICustomer extends mongoose.Document {
   business: IBusiness;
   estimatedIncome: number;
   bvn: string;
+  password: string;
+  emailOTP: string;
+  canAccessPortal: boolean;
+  emailVerified: boolean;
   app: IApp;
   identity: any;
 }

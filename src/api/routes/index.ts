@@ -2,7 +2,7 @@ import express, { NextFunction, Response, Request } from 'express';
 import apiStatusCodes from '../utils/ApiStatusCodes';
 import ApiResponse from '../utils/ApiResponse';
 import { ValidationError } from 'express-validation';
-import { validationErrorWrapper } from './exceptionHandler';
+import { validationErrorWrapper } from '../exceptions/validaitonExceptionHandler';
 
 import userRoutes from '../controllers/users';
 
