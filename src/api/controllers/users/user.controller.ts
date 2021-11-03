@@ -38,7 +38,7 @@ export class UserController {
 
       const customer = await this.userService.getStarted(request.body);
 
-      if (!customer) return ApiResponse.error(response, ApiStatusCodes.notFound, null, 'Customer data not found on Mono');
+      if (!customer) return ApiResponse.error(response, ApiStatusCodes.notFound, null, 'Invalid credential, already used or does not match an Mono account');
 
       ApiResponse.success(response, ApiStatusCodes.success, customer, `Email Verification Code sent to ${customer.email}`);
 
