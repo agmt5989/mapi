@@ -5,6 +5,8 @@ import Customer, { ICustomer } from '../../models/customers';
 import PortalUser from '../../models/portalUser';
 import { generateRandomString } from '../../utils';
 import { Mailing } from '../../contrib/mailing';
+import redis from '../../contrib/cache';
+
 
 
 export class UserService {
@@ -53,8 +55,23 @@ export class UserService {
       const customer = await Customer.findOne({ bvn: {$regex: `${bvn}$`}, phone });
   
       if(!customer) return null;
-  
+
+      const id = `getstarted-otp-${phone}`;
+      let session = await redis.getAsync(id);
+
+      if (session) return null;
+
       const emailOTP = generateRandomString(6, 'numbers');
+
+      if (!session) {
+        const new_session = {
+          count: 1,
+          expiresAt: new Date().getTime() + 1 * 60 * 60 * 1000,
+        };
+    
+        redis.set(id, JSON.stringify(new_session));
+        redis.expire(id, 3600); // expires in 1hr
+      }
 
       const portalUser = this.formatNewPortalUserFromCustomerData(emailOTP, customer);
 
