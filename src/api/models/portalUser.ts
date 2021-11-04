@@ -11,7 +11,6 @@ export interface IPortalUser extends mongoose.Document {
   bvn: string;
   password?: string;
   emailOTP: string;
-  canAccessPortal: boolean;
   emailVerified: boolean;
   identity?: any;
 }
@@ -47,10 +46,6 @@ const mPortalUserSchema = new mongoose.Schema(
       type: String,
     },
     emailOTP: String,
-    canAccessPortal: {
-      type: Boolean,
-      default: false
-    },
     emailVerified: {
       type: Boolean,
       default: false

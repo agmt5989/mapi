@@ -112,7 +112,6 @@ export class UserService {
       email
     }, {
       password: passwordHash,
-      canAccessPortal: true
     });
  
     if (!customer) return false;
@@ -131,7 +130,6 @@ export class UserService {
       phone: customer.phone,
       bvn: customer.bvn,
       emailOTP,
-      canAccessPortal: false,
       emailVerified: false,
     }
   }

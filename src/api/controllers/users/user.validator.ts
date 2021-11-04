@@ -22,7 +22,7 @@ export const confirmEmailSchema = {
 
 export const loginUserRequestSchema = {
   body: Joi.object({
-    userId: Joi.string().required(),
+    email: Joi.string().required(),
     password: Joi.string().required()
   }),
 };
