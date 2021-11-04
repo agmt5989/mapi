@@ -17,10 +17,10 @@ export class UserService {
 
   public async login(requestBody: ILoginRequest): Promise<ILoginResponse> {
 
-    let customer;
+    let user;
     try {
 
-      customer = await PortalUser.findOne({ email: requestBody.email }).populate({
+      user = await PortalUser.findOne({ email: requestBody.email }).populate({
         path: 'businesses',
         select:
           '_id firstName lastName name email name phone bvn password customer',
@@ -28,18 +28,18 @@ export class UserService {
       .lean();
       
     } catch (error) {
-      return { error: true, message: error instanceof Error ? error.message : error }
+      return { error: true, message: error instanceof Error ? error.message : 'An Error Occured' }
     }
 
-    if (!customer) return { error: true, message: 'Invalid email or password' };
+    if (!user) return { error: true, message: 'Invalid email or password' };
 
-    const passwordIsValid = bcrypt.compareSync(requestBody.password, customer.password);
-    customer.password = undefined; // unset password hash from response data;
+    const passwordIsValid = bcrypt.compareSync(requestBody.password, user.password);
+    user.password = undefined; // unset password hash from response data;
     return passwordIsValid 
     ? {
       error: false,
       message: 'Login Successful',
-      data: customer
+      data: user
     } : {
       error: true,
       message: 'Invalid email or password',
@@ -48,42 +48,39 @@ export class UserService {
 
   public async getStarted(requestBody: IGetStartedRequest): Promise<ICustomer | null> {
 
-    try {
-      const { phone, bvn } = requestBody;
+    const { phone, bvn } = requestBody;
 
-      // last four digits for bvn
-      const customer = await Customer.findOne({ bvn: {$regex: `${bvn}$`}, phone });
+    // last four digits for bvn
+    const customer = await Customer.findOne({ bvn: {$regex: `${bvn}$`}, phone });
+
+    if(!customer) return null;
+
+    const id = `getstarted-otp-${phone}`;
+    let session = await redis.getAsync(id);
+
+    if (session) return null;
+
+    const emailOTP = generateRandomString(6, 'numbers');
+
+    if (!session) {
+      const new_session = {
+        count: 1,
+        emailOTP,
+        expiresAt: new Date().getTime() + 1 * 60 * 60 * 1000,
+      };
   
-      if(!customer) return null;
-
-      const id = `getstarted-otp-${phone}`;
-      let session = await redis.getAsync(id);
-
-      if (session) return null;
-
-      const emailOTP = generateRandomString(6, 'numbers');
-
-      if (!session) {
-        const new_session = {
-          count: 1,
-          emailOTP,
-          expiresAt: new Date().getTime() + 1 * 60 * 60 * 1000,
-        };
-    
-        redis.set(id, JSON.stringify(new_session));
-        redis.expire(id, 3600); // expires in 1hr
-      }
-
-      const portalUser = this.formatNewPortalUserFromCustomerData(emailOTP, customer);
-
-      const newPortalUser = new PortalUser(portalUser);
-      await newPortalUser.save();
- 
-      this.sendVerifcationCode(emailOTP, portalUser.email, portalUser.firstName);
-      return customer;
-    } catch (error) {
-      throw new Error(error);
+      redis.set(id, JSON.stringify(new_session));
+      redis.expire(id, 3600); // expires in 1hr
     }
+
+    const portalUser = this.formatNewPortalUserFromCustomerData(emailOTP, customer);
+
+    const newPortalUser = new PortalUser(portalUser);
+    await newPortalUser.save();
+
+    this.sendVerifcationCode(emailOTP, portalUser.email, portalUser.firstName);
+    return customer;
+
 
   }
 

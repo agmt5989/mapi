@@ -1,4 +1,4 @@
-import { ICustomer } from "../models/customers";
+import { IPortalUser } from "api/models/portalUser";
 
 export interface IGetStartedRequest {
  phone: string,
@@ -10,4 +10,4 @@ export interface ILoginRequest {
   password: string,
  }
 
-export interface ILoginResponse { error: boolean; data?: ICustomer; message: string; }
+export interface ILoginResponse { error: boolean; data?: IPortalUser; message: string; }
