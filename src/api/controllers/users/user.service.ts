@@ -23,7 +23,7 @@ export class UserService {
       customer = await PortalUser.findOne({ email: requestBody.email }).populate({
         path: 'businesses',
         select:
-          '_id firstName lastName name email name phone bvn identity password',
+          '_id firstName lastName name email name phone bvn password customer',
       })
       .lean();
       
@@ -125,6 +125,7 @@ export class UserService {
       firstName: customer.firstName,
       lastName: customer.lastName,
       name: customer.name,
+      customer: customer.id,
       scope: customer.scope,
       email: customer.email,
       phone: customer.phone,

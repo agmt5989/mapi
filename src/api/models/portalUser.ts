@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { timestamps } from '../utils';
+import { ICustomer } from './customers';
 
 export interface IPortalUser extends mongoose.Document {
   firstName: string;
@@ -12,7 +13,7 @@ export interface IPortalUser extends mongoose.Document {
   password?: string;
   emailOTP: string;
   emailVerified: boolean;
-  identity?: any;
+  customer: ICustomer;
 }
 
 const mPortalUserSchema = new mongoose.Schema(
@@ -50,11 +51,11 @@ const mPortalUserSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    identity: {
+    customer: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Identity',
+      ref: 'Customer',
       index: true,
-    },
+    }
   },
   { timestamps },
 );
