@@ -51,7 +51,7 @@ export class UserService {
     try {
       const { phone, bvn } = requestBody;
 
-      // last for digits for bvn
+      // last four digits for bvn
       const customer = await Customer.findOne({ bvn: {$regex: `${bvn}$`}, phone });
   
       if(!customer) return null;
@@ -66,6 +66,7 @@ export class UserService {
       if (!session) {
         const new_session = {
           count: 1,
+          emailOTP,
           expiresAt: new Date().getTime() + 1 * 60 * 60 * 1000,
         };
     
