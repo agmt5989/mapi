@@ -1,16 +1,25 @@
 import Account, { IAccount } from '../../models/account';
 import mongoose from 'mongoose';
+import Customer from '../../models/customers';
 
 export class AccountService {
   constructor() {}
 
   public async getAccounts(customerId: string, bvn: string) {
 
+    console.log(customerId)
+    console.log(bvn)
+
+    // return await Account.find({
+    //   bvn: bvn.length === 4 ? { $regex: `${bvn}$`} : bvn,
+    //   // customer: customerId
+    // })
+
     return await Account.aggregate([
       {
         $match: {
           bvn: bvn.length === 4 ? { $regex: `${bvn}$`} : bvn,
-          customer: customerId
+          customer: new mongoose.Types.ObjectId(customerId)
         },
       },
       {

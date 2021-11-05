@@ -1,4 +1,5 @@
 import { ICustomer } from 'api/models/customers';
+import { IPortalUser } from 'api/models/portalUser';
 import crytojs from 'crypto-js'
 import jwt from 'jsonwebtoken';
 
@@ -13,15 +14,15 @@ export const timestamps = {
   updatedAt: 'updated_at',
 };
 
-export const generateJWT = (customer: ICustomer) => {
+export const generateJWT = (user: IPortalUser) => {
   const token = jwt.sign({
-    id: customer._id,
-    email: customer.email,
-    firstName: customer.firstName,
-    lastName: customer.lastName,
-    phone: customer.phone,
-    bvn: customer.bvn,
-    app: customer.app
+    id: user._id,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    phone: user.phone,
+    bvn: user.bvn,
+    customer: user.customer
   }, process.env.JWT_SECRET || 'A5KPb64mdHfad1J5', { expiresIn: '24h' });
   return token;
 }

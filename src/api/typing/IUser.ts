@@ -1,3 +1,4 @@
+import { IPortalUser } from "api/models/portalUser";
 import { ICustomer } from "../models/customers";
 
 export interface IGetStartedRequest {
@@ -20,4 +21,4 @@ export type TTokenPayload = {
   app: string
 }
 
-export interface ILoginResponse { error: boolean; data?: ICustomer; message: string; }
+export interface ILoginResponse { error: boolean; data?: IPortalUser; message: string; }
