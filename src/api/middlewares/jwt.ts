@@ -38,6 +38,9 @@ try {
   req.user = decoded;
   next();
 } catch (error) {
-  return ApiResponse.error(res, ApiStatusCodes.serverError, null, error.message);
+  if(error instanceof Error) {
+    return ApiResponse.error(res, ApiStatusCodes.serverError, null, error.message);
+  }
+  next(error);
 }
 }
