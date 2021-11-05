@@ -1,14 +1,16 @@
 import Account, { IAccount } from '../../models/account';
+import mongoose from 'mongoose';
 
 export class AccountService {
   constructor() {}
 
   public async getAccounts(customerId: string, bvn: string) {
+
     return await Account.aggregate([
       {
         $match: {
-          bvn: { $regex: `${bvn}$`},
-          customer: customerId
+          bvn: bvn.length === 4 ? { $regex: `${bvn}$`} : bvn,
+          // customer: customerId
         },
       },
       {

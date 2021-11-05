@@ -14,9 +14,10 @@ export class AccountController {
 
   public getAccounts = async (request: Request, response: Response, next: NextFunction) => {
     try {
-      const accounts = await this.accountService.getAccounts(request.user.bvn, request.user.customerId);
+   
+      const accounts = await this.accountService.getAccounts(request.user.customerId, request.user.bvn);
 
-      if (accounts) return ApiResponse.error(response, ApiStatusCodes.notFound, null, 'Could not fetch any connected account with Mono');
+      if (!accounts) return ApiResponse.error(response, ApiStatusCodes.notFound, null, 'Could not fetch any connected account with Mono');
       ApiResponse.success(response, ApiStatusCodes.success, accounts, 'Retrieved connected accounts successfully');
       
     } catch (error: Error | any) {
