@@ -9,7 +9,7 @@ const accountRoutes = express.Router();
 
 const controller = new AccountController();
 
-accountRoutes.get('/get', controller.getAccounts);
+accountRoutes.get('/', controller.getAccounts);
 accountRoutes.post('/toggle', validate(toggleAccountRequestSchema), controller.toggleAccounts);
 
 export default accountRoutes;

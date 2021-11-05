@@ -10,7 +10,7 @@ export class AccountService {
       {
         $match: {
           bvn: bvn.length === 4 ? { $regex: `${bvn}$`} : bvn,
-          // customer: customerId
+          customer: customerId
         },
       },
       {
