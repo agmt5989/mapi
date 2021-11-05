@@ -10,7 +10,6 @@ export const createUserRequestSchema = {
 export const createPasswordRequestSchema = {
   body: Joi.object({
     password: Joi.string().required(),
-    confirmPassword: Joi.string().required(),
   }),
 }
 
