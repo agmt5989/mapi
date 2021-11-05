@@ -17,11 +17,11 @@ export const JWT = (req: Request, res: Response, next: NextFunction) => {
   req.headers.Authorization ||
   req.headers.authorization;
 
-authToken = authToken.split(' ')[0] === 'Bearer' ? authToken.split(' ')[1] : authToken;
-
 if (!authToken) {
   return ApiResponse.error(res, ApiStatusCodes.unAuthorized, null, 'token must be provided');
 }
+
+authToken = authToken.split(' ')[0] === 'Bearer' ? authToken.split(' ')[1] : authToken;
 
 try {
   const decoded: JwtPayload | null | string = jwt.decode(authToken) as JwtPayload;
