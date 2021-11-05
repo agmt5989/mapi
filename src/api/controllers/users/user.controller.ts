@@ -69,21 +69,47 @@ export class UserController {
 
     try {
 
-      const { password, confirmPassword } = request.body;
+      const { password } = request.body;
+      const { email } = request.query;
       if(password > 8) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 'Passwords must be greater than 8 characters'); 
 
-      const result = await this.userService.createPassword(password, request.params.email);
+      // @ts-ignore
+      const result = await this.userService.createPassword(password, email);
 
       if (!result) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 
-        `Could not choose password successfully for ${request.params.email}, please ensure the email is verified`); 
+        `Could not choose password successfully for ${email}, please ensure the email is verified`); 
 
-      ApiResponse.success(response, ApiStatusCodes.success, null,`Successfully set password for ${request.params.email}`)
+      ApiResponse.success(response, ApiStatusCodes.success, null,`Successfully set password for ${email}`)
 
     } catch (error: Error | any) {
       this.logger.log(error.message);
       next(error)
     }
   }
+
+  // public updatePassword = async (request: Request, response: Response, next: NextFunction) => {
+
+  //   try {
+
+  //     const { newPassword, oldPassword } = request.body;
+  //     const { email } = request.user;
+  //     if(newPassword > 8) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 'Passwords must be greater than 8 characters'); 
+
+  //     // @ts-ignore
+  //     const result = await this.userService.updatePassword(newPassword, oldPassword, email);
+
+  //     if (!result) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 
+  //       `Could not update password successfully for ${email}, please ensure you entered the valid old password`); 
+
+  //     ApiResponse.success(response, ApiStatusCodes.success, null,`Successfully updated password for ${email}`)
+
+  //   } catch (error: Error | any) {
+  //     this.logger.log(error.message);
+  //     next(error)
+  //   }
+  // }
+
+
 
   // TODO
   public resendVerficationLink = async (request: Request, response: Response, next: NextFunction) => {

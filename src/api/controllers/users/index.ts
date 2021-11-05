@@ -8,10 +8,10 @@ const userRoutes = express.Router();
 
 const controller = new UserController();
 
-userRoutes.post('/login', validate(createUserRequestSchema), controller.login);
-userRoutes.post('/get-started', validate(loginUserRequestSchema), controller.getStarted);
+userRoutes.post('/login', validate(loginUserRequestSchema), controller.login);
+userRoutes.post('/get-started', validate(createUserRequestSchema), controller.getStarted);
 userRoutes.post('/confirm-email', validate(confirmEmailSchema), controller.confirmEmail);
-userRoutes.post('/create-password/:email', validate(createPasswordRequestSchema), controller.createPassword);
+userRoutes.post('/create-password', validate(createPasswordRequestSchema), controller.createPassword);
 
 
 export default userRoutes;

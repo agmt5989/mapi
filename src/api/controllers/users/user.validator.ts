@@ -11,6 +11,9 @@ export const createPasswordRequestSchema = {
   body: Joi.object({
     password: Joi.string().required(),
   }),
+  query: Joi.object({
+    email: Joi.string().required(),
+  })
 }
 
 export const confirmEmailSchema = {

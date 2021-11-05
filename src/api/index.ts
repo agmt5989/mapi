@@ -7,7 +7,7 @@ import express from 'express';
 import helmet from 'helmet';
 import './contrib/db/mongo';
 
-// import Routes from './routes';
+import Routes from './routes';
 import Logger from './utils/logger';
 
 const app = express();
@@ -28,7 +28,7 @@ app.use(bodyparser.json({ limit: '50mb' }));
 app.use(bodyparser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
 app.use(morgan(':date *** :method :: :url ** :response-time'));
 
-// app.use('/pager/v1', Routes);
+app.use('/portal/v1', Routes);
 
 
 app.listen(port, () => {

@@ -104,7 +104,7 @@ export class UserService {
 
     const passwordHash = bcrypt.hashSync(password, 10);
 
-    const customer = await Customer.findOneAndUpdate({
+    const customer = await PortalUser.findOneAndUpdate({
       emailVerified: true,
       email
     }, {
@@ -112,6 +112,29 @@ export class UserService {
     });
  
     if (!customer) return false;
+
+    return true;
+
+  }
+
+  public async updatePassword(newPassword: string, oldPassword: string, email: string): Promise<boolean> {
+
+    const passwordHash = bcrypt.hashSync(newPassword, 10);
+
+    const oldCustomerData = await PortalUser.findOne({ email });
+
+    // @ts-ignore
+    const oldPasswordIsValid = bcrypt.compareSync(oldPassword, oldCustomerData.password);
+    if (!oldPasswordIsValid) return false;
+
+    const user = await PortalUser.findOneAndUpdate({
+      emailVerified: true,
+      email
+    }, {
+      password: passwordHash,
+    });
+ 
+    if (!user) return false;
 
     return true;
 
