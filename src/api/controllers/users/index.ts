@@ -12,6 +12,7 @@ userRoutes.post('/login', validate(loginUserRequestSchema), controller.login);
 userRoutes.post('/get-started', validate(createUserRequestSchema), controller.getStarted);
 userRoutes.post('/confirm-email', validate(confirmEmailSchema), controller.confirmEmail);
 userRoutes.post('/create-password', validate(createPasswordRequestSchema), controller.createPassword);
+userRoutes.post('/resend-otp', validate(createUserRequestSchema), controller.resendVerficationLink);
 
 
 export default userRoutes;

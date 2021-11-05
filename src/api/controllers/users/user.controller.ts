@@ -21,12 +21,11 @@ export class UserController {
       const result = await this.userService.login(request.body);
 
       if (result.error) return ApiResponse.error(response, ApiStatusCodes.badRequest, result.data, result.message);
-
-      const responseData = { customer: result.data, token: result.data ? generateJWT(result.data) : null }
+      
+      const responseData = { user: result.data, token: result.data ? generateJWT(result.data) : null }
 
       ApiResponse.success(response, ApiStatusCodes.success, responseData, result.message);
 
-      
     } catch (error: Error | any) {
       this.logger.log(error);
       next(error)
@@ -38,7 +37,7 @@ export class UserController {
 
       const customer = await this.userService.getStarted(request.body);
 
-      if (!customer) return ApiResponse.error(response, ApiStatusCodes.notFound, null, 'Invalid credential, already used or does not match an Mono account');
+      if (!customer) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 'Invalid credential, Already on Portal or does not match a Mono account');
 
       ApiResponse.success(response, ApiStatusCodes.success, customer, `Email Verification Code sent to ${customer.email}`);
 
@@ -109,11 +108,19 @@ export class UserController {
   //   }
   // }
 
-
-
-  // TODO
   public resendVerficationLink = async (request: Request, response: Response, next: NextFunction) => {
+    try {
 
+      const isSent = await this.userService.resendOTP(request.body);
+
+      if (!isSent.error) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, isSent.message);
+
+      ApiResponse.success(response, ApiStatusCodes.success, null, isSent.message);
+
+    } catch (error: Error | any) {
+      this.logger.log(error.message);
+      next(error)
+    }
   }
 
 }

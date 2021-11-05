@@ -20,14 +20,11 @@ export class UserService {
     let user;
     try {
 
-      user = await PortalUser.findOne({ email: requestBody.email }).populate({
-        path: 'businesses',
-        select:
-          '_id firstName lastName name email name phone bvn password customer',
-      })
-      .lean();
+      user = await PortalUser.findOne({ email: requestBody.email }, '_id firstName lastName name email name phone bvn password customer').lean();
       
     } catch (error) {
+      if(error instanceof Error) this.logger.log(error);
+
       return { error: true, message: error instanceof Error ? error.message : 'An Error Occured' }
     }
 
@@ -52,8 +49,11 @@ export class UserService {
 
     // last four digits for bvn
     const customer = await Customer.findOne({ bvn: {$regex: `${bvn}$`}, phone });
+    const isExistsOnPortal = await PortalUser.findOne({ bvn: {$regex: `${bvn}$`}, phone });
 
     if(!customer) return null;
+
+    if(isExistsOnPortal) return null;
 
     const id = `getstarted-otp-${phone}`;
     let session = await redis.getAsync(id);
@@ -86,6 +86,10 @@ export class UserService {
   }
 
   public async resendOTP(requestBody: IGetStartedRequest): Promise<{ error: boolean, message: string }>{
+
+    const portalUser = await PortalUser.findOne({ bvn: {$regex: `${requestBody.bvn}$`}, phone: requestBody.phone });
+
+    if(!portalUser?.emailVerified) return { error: true, message: 'Email already verified'};
 
     const id = `getstarted-otp-${requestBody.phone}`;
     let session = await redis.getAsync(id);

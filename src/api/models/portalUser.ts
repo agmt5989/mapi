@@ -60,6 +60,6 @@ const mPortalUserSchema = new mongoose.Schema(
   { timestamps },
 );
 
-const Customer = mongoose.model<IPortalUser>('PortaUser', mPortalUserSchema);
+const PortalUser = mongoose.model<IPortalUser>('PortaUser', mPortalUserSchema);
 
-export default Customer;
+export default PortalUser;
