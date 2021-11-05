@@ -7,14 +7,6 @@ export class AccountService {
 
   public async getAccounts(customerId: string, bvn: string) {
 
-    console.log(customerId)
-    console.log(bvn)
-
-    // return await Account.find({
-    //   bvn: bvn.length === 4 ? { $regex: `${bvn}$`} : bvn,
-    //   // customer: customerId
-    // })
-
     return await Account.aggregate([
       {
         $match: {
