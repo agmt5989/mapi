@@ -2,7 +2,7 @@ import { Joi, validate } from 'express-validation';
 
 export const createUserRequestSchema = {
   body: Joi.object({
-    bvn: Joi.string().required(),
+    bvn: Joi.string().required().length(4), // last 4 digits
     phone: Joi.string().required(),
   }),
 };
@@ -11,6 +11,9 @@ export const createPasswordRequestSchema = {
   body: Joi.object({
     password: Joi.string().required(),
   }),
+  query: Joi.object({
+    email: Joi.string().required(),
+  })
 }
 
 export const confirmEmailSchema = {
@@ -22,7 +25,7 @@ export const confirmEmailSchema = {
 
 export const loginUserRequestSchema = {
   body: Joi.object({
-    userId: Joi.string().required(),
+    email: Joi.string().required(),
     password: Joi.string().required()
   }),
 };

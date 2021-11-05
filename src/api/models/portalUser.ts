@@ -1,23 +1,22 @@
 import mongoose from 'mongoose';
 import { timestamps } from '../utils';
-import { IApp } from './apps/apps';
-import { IBusiness } from './business';
+import { ICustomer } from './customers';
 
-export interface ICustomer extends mongoose.Document {
+export interface IPortalUser extends mongoose.Document {
   firstName: string;
   lastName: string;
   name: string;
   scope: Array<string>;
   email: string;
   phone: string;
-  business: IBusiness;
-  estimatedIncome: number;
   bvn: string;
-  app: IApp;
-  identity: any;
+  password?: string;
+  emailOTP: string;
+  emailVerified: boolean;
+  customer: ICustomer;
 }
 
-const mCustomerSchema = new mongoose.Schema(
+const mPortalUserSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
@@ -32,15 +31,6 @@ const mCustomerSchema = new mongoose.Schema(
       required: true,
     },
     phone: String,
-    estimatedIncome: {
-      type: Number,
-      default: 0,
-    },
-    business: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Business',
-      index: true,
-    },
     scope: {
       type: [String],
       index: true,
@@ -53,20 +43,23 @@ const mCustomerSchema = new mongoose.Schema(
       type: String,
       index: true,
     },
-    app: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'App',
-      index: true,
+    password: {
+      type: String,
     },
-    identity: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Identity',
-      index: true,
+    emailOTP: String,
+    emailVerified: {
+      type: Boolean,
+      default: false
     },
+    customer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Customer',
+      index: true,
+    }
   },
   { timestamps },
 );
 
-const Customer = mongoose.model<ICustomer>('Customer', mCustomerSchema);
+const PortalUser = mongoose.model<IPortalUser>('PortaUser', mPortalUserSchema);
 
-export default Customer;
+export default PortalUser;

@@ -21,12 +21,11 @@ export class UserController {
       const result = await this.userService.login(request.body);
 
       if (result.error) return ApiResponse.error(response, ApiStatusCodes.badRequest, result.data, result.message);
-
-      const responseData = { customer: result.data, token: result.data ? generateJWT(result.data) : null }
+      
+      const responseData = { user: result.data, token: result.data ? generateJWT(result.data) : null }
 
       ApiResponse.success(response, ApiStatusCodes.success, responseData, result.message);
 
-      
     } catch (error: Error | any) {
       this.logger.log(error);
       next(error)
@@ -38,7 +37,7 @@ export class UserController {
 
       const customer = await this.userService.getStarted(request.body);
 
-      if (!customer) return ApiResponse.error(response, ApiStatusCodes.notFound, null, 'Customer data not found on Mono');
+      if (!customer) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 'Invalid credential, Already on Portal or does not match a Mono account');
 
       ApiResponse.success(response, ApiStatusCodes.success, customer, `Email Verification Code sent to ${customer.email}`);
 
@@ -69,17 +68,17 @@ export class UserController {
 
     try {
 
-      const { password, confirmPassword } = request.body;
-
-      if(password !== confirmPassword) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 'Passwords must match'); 
+      const { password } = request.body;
+      const { email } = request.query;
       if(password > 8) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 'Passwords must be greater than 8 characters'); 
 
-      const result = await this.userService.createPassword(password, request.params.email);
+      // @ts-ignore
+      const result = await this.userService.createPassword(password, email);
 
       if (!result) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 
-        `Could not choose password successfully for ${request.params.email}, please ensure the email is verified`); 
+        `Could not choose password successfully for ${email}, please ensure the email is verified`); 
 
-      ApiResponse.success(response, ApiStatusCodes.success, null,`Successfully set password for ${request.params.email}`)
+      ApiResponse.success(response, ApiStatusCodes.success, null,`Successfully set password for ${email}`)
 
     } catch (error: Error | any) {
       this.logger.log(error.message);
@@ -87,9 +86,41 @@ export class UserController {
     }
   }
 
-  // TODO
-  public resendVerficationLink = async (request: Request, response: Response, next: NextFunction) => {
+  // public updatePassword = async (request: Request, response: Response, next: NextFunction) => {
 
+  //   try {
+
+  //     const { newPassword, oldPassword } = request.body;
+  //     const { email } = request.user;
+  //     if(newPassword > 8) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 'Passwords must be greater than 8 characters'); 
+
+  //     // @ts-ignore
+  //     const result = await this.userService.updatePassword(newPassword, oldPassword, email);
+
+  //     if (!result) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 
+  //       `Could not update password successfully for ${email}, please ensure you entered the valid old password`); 
+
+  //     ApiResponse.success(response, ApiStatusCodes.success, null,`Successfully updated password for ${email}`)
+
+  //   } catch (error: Error | any) {
+  //     this.logger.log(error.message);
+  //     next(error)
+  //   }
+  // }
+
+  public resendVerficationLink = async (request: Request, response: Response, next: NextFunction) => {
+    try {
+
+      const isSent = await this.userService.resendOTP(request.body);
+
+      if (!isSent.error) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, isSent.message);
+
+      ApiResponse.success(response, ApiStatusCodes.success, null, isSent.message);
+
+    } catch (error: Error | any) {
+      this.logger.log(error.message);
+      next(error)
+    }
   }
 
 }

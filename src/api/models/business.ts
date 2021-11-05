@@ -48,53 +48,6 @@ export interface IBusiness extends mongoose.Document {
     plan: any;
     addons: any[];
   };
-  compliance: {
-    user: {
-      rejection: {
-        reason: string;
-        date: Date;
-      };
-      activation: {
-        date: Date;
-      };
-      countryOfResidence: string;
-      identificationType: string;
-      identificationNumber: string;
-      identificationFile: string;
-      state: string;
-      address: string;
-      reviewNote: string;
-      submittedAt: string;
-      submittedBy: {
-        email: string;
-        firstName: string;
-        lastName: string;
-      };
-    };
-    registeredCompany: {
-      rejection: {
-        reason: string;
-        date: Date;
-      };
-      activation: {
-        date: Date;
-      };
-      cacId: string;
-      incorporationType: any;
-      rc: string;
-      state: string;
-      address: string;
-      file: string;
-      countryOfIncorporation: string;
-      reviewNote: string;
-      submittedAt: string;
-      submittedBy: {
-        email: string;
-        firstName: string;
-        lastName: string;
-      };
-    };
-  };
 }
 
 export interface IBusinessModel extends mongoose.Model<IBusiness> {
@@ -233,53 +186,6 @@ const businessSchema = new mongoose.Schema(
     useCase: {
       industry: String,
       description: String,
-    },
-    compliance: {
-      user: {
-        rejection: {
-          reason: String,
-          date: Date,
-        },
-        activation: {
-          date: Date,
-        },
-        countryOfResidence: String,
-        identificationType: String,
-        identificationNumber: String,
-        identificationFile: String,
-        state: String,
-        address: String,
-        reviewNote: String,
-        submittedAt: Date,
-        submittedBy: {
-          email: String,
-          firstName: String,
-          lastName: String,
-        },
-      },
-      registeredCompany: {
-        rejection: {
-          reason: String,
-          date: Date,
-        },
-        activation: {
-          date: Date,
-        },
-        incorporationType: mongoose.Schema.Types.Mixed,
-        cacId: String,
-        rc: String,
-        file: String,
-        state: String,
-        address: String,
-        countryOfIncorporation: String,
-        reviewNote: String,
-        submittedAt: Date,
-        submittedBy: {
-          email: String,
-          firstName: String,
-          lastName: String,
-        },
-      },
     },
   },
   { timestamps },
