@@ -62,10 +62,17 @@ export class UserService {
 
     const emailOTP = generateRandomString(6, 'numbers');
 
+    const portalUser = this.formatNewPortalUserFromCustomerData(emailOTP, customer);
+
+    const newPortalUser = new PortalUser(portalUser);
+    await newPortalUser.save();
+
     if (!session) {
       const new_session = {
-        count: 1,
+        count: 0,
         emailOTP,
+        email: portalUser.email,
+        firstName: portalUser.firstName,
         expiresAt: new Date().getTime() + 1 * 60 * 60 * 1000,
       };
   
@@ -73,14 +80,31 @@ export class UserService {
       redis.expire(id, 3600); // expires in 1hr
     }
 
-    const portalUser = this.formatNewPortalUserFromCustomerData(emailOTP, customer);
-
-    const newPortalUser = new PortalUser(portalUser);
-    await newPortalUser.save();
-
     this.sendVerifcationCode(emailOTP, portalUser.email, portalUser.firstName);
-    return customer;
 
+    return customer;
+  }
+
+  public async resendOTP(requestBody: IGetStartedRequest): Promise<{ error: boolean, message: string }>{
+
+    const id = `getstarted-otp-${requestBody.phone}`;
+    let session = await redis.getAsync(id);
+  
+    if (session) {
+      session = JSON.parse(session);
+      if (session.count === 3) {
+        return { error: true, message: 'Exceed 3 trials to resend OTP, please contact Mono Support Team'};
+      }
+  
+      session.count = session.count + 1;
+      redis.set(id, JSON.stringify(session));
+
+      this.sendVerifcationCode(session.emailOTP, session.email, session.firstName);
+
+      return { error: false, message: `OTP Successfully resent to ${session.email}, ${3 - session.count} resends left`};
+    }
+    
+    return { error: true, message: 'Invalid Credentials'};
 
   }
 
