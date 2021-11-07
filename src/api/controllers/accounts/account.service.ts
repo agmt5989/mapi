@@ -5,13 +5,12 @@ import Customer from '../../models/customers';
 export class AccountService {
   constructor() {}
 
-  public async getAccounts(customerId: string, bvn: string) {
+  public async getAccounts(bvn: string) {
 
     return await Account.aggregate([
       {
         $match: {
-          bvn: bvn.length === 4 ? { $regex: `${bvn}$`} : bvn,
-          customer: new mongoose.Types.ObjectId(customerId)
+          bvn: { $regex: `${bvn}$`},
         },
       },
       {
@@ -71,16 +70,16 @@ export class AccountService {
     ]).exec();
   }
 
-  public async toggleAccount(customerId: string, accountNumbers: string, bvn: string, link: boolean): Promise<{ error: boolean, message: string, data?}> {
+  public async toggleAccount(accountNumbers: string, bvn: string, link: boolean): Promise<{ error: boolean, message: string, data?}> {
 
     const state = link ? 'linked' : 'unlinked';
 
     if (accountNumbers === 'all') {
-      const update = await Account.updateMany({ customerId, bvn: { $regex: `${bvn}$`}}, { linked: link}).exec();
+      const update = await Account.updateMany({ bvn: { $regex: `${bvn}`}}, { linked: link}).exec();
       return { error: false, message: `All Accounts ${state} successfully`, data: update };
     }
 
-    const account = await Account.findOne({ accountNumber: accountNumbers, bvn: { $regex: `${bvn}$`}}).exec();
+    const account = await Account.findOne({ accountNumber: accountNumbers, bvn: { $regex: `${bvn}`}}).exec();
     if (account === null) return { error: true, message: `Account does not exist`}
 
     if(account.linked === link) return { error: true, message: `Account is already ${state}`};
