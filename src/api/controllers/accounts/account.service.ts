@@ -3,17 +3,21 @@ import Account, { IAccount } from '../../models/account';
 export class AccountService {
   constructor() {}
 
+  /**
+   * 
+   * @param bvn unique bvn of the customer
+   * @returns {[ institution : {}, connectedAccounts: [], allaccounts: [] ]}
+   */
   public async getAccounts(bvn: string) {
 
     return await Account.aggregate([
+      // match by the bvn of the customer
       {
         $match: {
           bvn: { $regex: `${bvn}$`},
         },
       },
-      {
-        $sort: { updated_at: -1 },
-      },
+      // looks up by institution id to get the complete object returned
       {
         $lookup: {
           from: "institutions",
@@ -23,23 +27,25 @@ export class AccountService {
         },
       },
       { $unwind: "$institution" },
+      // Groups entries that match bvn query by the institution 
       {
-          $group: {
-              _id: "$institution",
-              "Accounts connected": {
-                "$push": {
-                    "$cond":[
-                        {"$eq":["$linked", true]},
-                        {"accountNumber":"$accountNumber"},
-                        null
-                    ]
-                }
-              },
-              "All Account Numbers": {
-                  $push: "$accountNumber",
-              }
+        $group: {
+          _id: "$institution",
+          "Accounts connected": {
+            "$push": {
+                "$cond":[
+                    {"$eq":["$linked", true]},
+                    {"accountNumber":"$accountNumber"},
+                    null
+                ]
+            }
+          },
+          "All Account Numbers": {
+              $push: "$accountNumber",
           }
+        }
       },
+      // This adds field to ensure no repeated entries on the accounts to be returned (connected and all)
       {
         $addFields: {
         "Accounts connected": {
@@ -94,31 +100,32 @@ export class AccountService {
         }
         }
       },
+      // This projects the data to be returned from the querry
       {
-           $project: {
-            _id: 0,
-            "Institution": {
-              identifier: "$_id.identifier",
-              name: "$_id.name",
-              icon: "$_id.icon",
-              bankCode: "$_id.bankCode",
-              type: "$_id.type",
-              primaryColor: "$_id.primaryColor",
-            },
-            "allAccounts": {
-              $filter: {
-                input: "$All accounts numbers",
-                as: "account",
-                cond: { $ne: [ "$$account", null ] }
-              }
-            },
-            "connectedAcounts": {
-              $filter: {
-                input: "$Accounts connected",
-                as: "account",
-                cond: { $ne: [ "$$account", null ] }
-              }
-            }
+        $project: {
+        _id: 0,
+        "institution": {
+          identifier: "$_id.identifier",
+          name: "$_id.name",
+          icon: "$_id.icon",
+          bankCode: "$_id.bankCode",
+          type: "$_id.type",
+          primaryColor: "$_id.primaryColor",
+        },
+        "allAccounts": {
+          $filter: {
+            input: "$All accounts numbers",
+            as: "account",
+            cond: { $ne: [ "$$account", null ] }
+          },
+        },
+        "connectedAcounts": {
+          $filter: {
+            input: "$Accounts connected",
+            as: "account",
+            cond: { $ne: [ "$$account", null ] }
+          },
+        }
         }
       },
       {
@@ -136,11 +143,9 @@ export class AccountService {
       return { error: false, message: `All Accounts ${state} successfully`, data: update };
     }
 
-    const account = await Account.findOne({ accountNumber: accountNumbers, bvn: { $regex: `${bvn}`}}).exec();
+    const account = await Account.find({ accountNumber: accountNumbers, bvn: { $regex: `${bvn}`}}).exec();
     if (account === null) return { error: true, message: `Account does not exist`}
-
-    if(account.linked === link) return { error: true, message: `Account is already ${state}`};
-    const update = await Account.findOneAndUpdate({ accountNumber: accountNumbers, bvn: { $regex: `${bvn}$`}}, { linked: link}).exec();
+    const update = await Account.updateMany({ accountNumber: accountNumbers, bvn: { $regex: `${bvn}$`}}, { linked: link}).exec();
 
     return { error: false, message: `Account ${state} successfully`, data: update };
   }

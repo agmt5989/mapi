@@ -1,12 +1,13 @@
+import { IApiResponse } from 'api/typing/IApiResponse';
 import { Response } from 'express';
 import ApiStatusCodes from './ApiStatusCodes';
 
 export default class ApiResponse {
-  public static success(res: Response, status: number, data: any, message: string) {
-    return res.status(status).json({
-      status,
-      message,
-      data,
+  public static success(apiResponse: IApiResponse) {
+    return apiResponse.expressResponse.status(apiResponse.statusCode).json({
+      status: apiResponse.statusCode,
+      message: apiResponse.message,
+      data: apiResponse.data,
     });
   }
 
@@ -18,11 +19,11 @@ export default class ApiResponse {
     });
   }
 
-  public static error(res: Response, code: number, error: any = {}, message: string) {
-    if (code === parseInt('444')) {
-      return this.send(res, ApiStatusCodes.badRequest, error.message);
+  public static error(data: IApiResponse) {
+    if (data.statusCode === parseInt('444')) {
+      return this.send(data.expressResponse, ApiStatusCodes.badRequest, data.error?.message);
     }
 
-    return this.send(res, code, message, error);
+    return this.send(data.expressResponse, data.statusCode, data.message, data.error);
   }
 }

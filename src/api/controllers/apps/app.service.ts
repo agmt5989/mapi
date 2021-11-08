@@ -2,15 +2,21 @@ import Account, { IAccount } from '../../models/account';
 
 export class AppService {
   constructor() {}
-
+  /**
+   * 
+   * @param bvn unique bvn of the customer
+   * @returns {[ app : {}, connectedAccounts: [], allaccounts: [] ]}
+   */
   public async getApps(bvn: string) {
     return await Account.aggregate([
+      // match by the bvn of the customer
       {
         $match: {
           bvn: { $regex: bvn },
          
         },
       },
+      // looks up by app id to get the complete object returned
       {
         $lookup: {
           from: "apps",
@@ -20,6 +26,7 @@ export class AppService {
         },
       },
       { $unwind: "$app" },
+      // Groups entries that match bvn query by the app 
       {
           $group: {
               _id: "$app",
@@ -37,6 +44,7 @@ export class AppService {
               }
           }
       },
+      // This adds field to ensure no repeated entries on the apps to be returned (connected and all)
       {
         $addFields: {
         "Accounts connected": {
@@ -91,10 +99,11 @@ export class AppService {
         }
         }
       },
+      // This projects the data to be returned from the querry
       {
         $project: {
             _id: 0,
-            "App": {
+            "app": {
               icon: "$_id.icon",
               live: "$_id.live",
               name: "$_id.name",
@@ -136,12 +145,11 @@ export class AppService {
     }
 
     // @ts-ignore
-    const account = await Account.findOne({ app: apps, bvn: { $regex: `${bvn}`}}).exec();
+    const account = await Account.find({ app: apps, bvn: { $regex: `${bvn}`}}).exec();
     if (account === null) return { error: true, message: `App does not exist`}
 
-    if(account.linked === link) return { error: true, message: `App is already ${state}`};
     // @ts-ignore
-    const update = await Account.findOneAndUpdate({ app: apps, bvn: { $regex: `${bvn}`}}, { linked: link}).exec();
+    const update = await Account.updateMany({ app: apps, bvn: { $regex: `${bvn}`}}, { linked: link}).exec();
 
     return { error: false, message: `App ${state} successfully`, data: update };
   }

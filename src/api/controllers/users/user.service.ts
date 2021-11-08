@@ -20,15 +20,24 @@ export class UserService {
     let user;
     try {
 
-      user = await PortalUser.findOne({ email: requestBody.email }, '_id firstName lastName name email name phone bvn password customer').lean();
+      user = await PortalUser.findOne(
+        { email: requestBody.email },
+        '_id firstName lastName name email name phone bvn password customer')
+        .lean();
       
     } catch (error) {
       if(error instanceof Error) this.logger.log(error);
 
-      return { error: true, message: error instanceof Error ? error.message : 'An Error Occured' }
+      return { 
+        error: true,
+        message: error instanceof Error ? error.message : 'An Error Occured' 
+      }
     }
 
-    if (!user) return { error: true, message: 'Invalid email or password' };
+    if (!user) return { 
+      error: true, 
+      message: 'Invalid email or password' 
+    };
 
     const passwordIsValid = bcrypt.compareSync(requestBody.password, user.password);
     user.password = undefined; // unset password hash from response data;
@@ -87,9 +96,14 @@ export class UserService {
 
   public async resendOTP(requestBody: IGetStartedRequest): Promise<{ error: boolean, message: string }>{
 
-    const portalUser = await PortalUser.findOne({ bvn: {$regex: `${requestBody.bvn}$`}, phone: requestBody.phone });
+    const portalUser = await PortalUser.findOne({ 
+      bvn: {$regex: `${requestBody.bvn}$`},
+      phone: requestBody.phone });
 
-    if(!portalUser?.emailVerified) return { error: true, message: 'Email already verified'};
+    if(portalUser?.emailVerified) return { 
+      error: true,
+      message: 'Email already verified'
+    };
 
     const id = `getstarted-otp-${requestBody.phone}`;
     let session = await redis.getAsync(id);
@@ -97,7 +111,10 @@ export class UserService {
     if (session) {
       session = JSON.parse(session);
       if (session.count === 3) {
-        return { error: true, message: 'Exceed 3 trials to resend OTP, please contact Mono Support Team'};
+        return { 
+          error: true,
+          message: 'Exceed 3 trials to resend OTP, please contact Mono Support Team'
+        };
       }
   
       session.count = session.count + 1;
@@ -105,10 +122,15 @@ export class UserService {
 
       this.sendVerifcationCode(session.emailOTP, session.email, session.firstName);
 
-      return { error: false, message: `OTP Successfully resent to ${session.email}, ${3 - session.count} resends left`};
+      return { error: false,
+        message: `OTP Successfully resent to ${session.email}, ${3 - session.count} resends left`
+      };
     }
     
-    return { error: true, message: 'Invalid Credentials'};
+    return { 
+      error: true, 
+      message: 'Invalid Credentials'
+    };
 
   }
 
