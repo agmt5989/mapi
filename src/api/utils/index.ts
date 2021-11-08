@@ -22,7 +22,7 @@ export const generateJWT = (user: IPortalUser) => {
     lastName: user.lastName,
     phone: user.phone,
     bvn: user.bvn,
-  }, process.env.JWT_SECRET || 'A5KPb64mdHfad1J5', { expiresIn: '24h' });
+  }, process.env?.JWT_SECRET || '', { expiresIn: '24h' });
   return token;
 }
 
