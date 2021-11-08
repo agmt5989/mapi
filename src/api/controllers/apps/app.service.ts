@@ -28,21 +28,21 @@ export class AppService {
       { $unwind: "$app" },
       // Groups entries that match bvn query by the app 
       {
-          $group: {
-              _id: "$app",
-              "Accounts connected": {
-                "$push": {
-                    "$cond":[
-                        {"$eq":["$linked", true]},
-                        {"accountNumber":"$accountNumber"},
-                        null
-                    ]
-                }
-              },
-              "All Account Numbers": {
-                  $push: "$accountNumber",
-              }
+        $group: {
+          _id: "$app",
+          "Accounts connected": {
+            "$push": {
+                "$cond":[
+                    {"$eq":["$linked", true]},
+                    {"accountNumber":"$accountNumber"},
+                    null
+                ]
+            }
+          },
+          "All Account Numbers": {
+              $push: "$accountNumber",
           }
+        }
       },
       // This adds field to ensure no repeated entries on the apps to be returned (connected and all)
       {
