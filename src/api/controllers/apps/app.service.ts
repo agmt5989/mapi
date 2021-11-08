@@ -136,6 +136,7 @@ export class AppService {
         { bvn: { $regex: `${bvn}` } },
         { linked: link }
       ).exec();
+      
       return {
         error: false,
         message: `All App ${state} successfully`,
@@ -148,6 +149,7 @@ export class AppService {
       app: apps,
       bvn: { $regex: `${bvn}` },
     }).exec();
+
     if (account === null) return { error: true, message: `App does not exist` };
 
     const update = await Account.updateMany(

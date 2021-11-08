@@ -146,8 +146,11 @@ export class AccountService {
       accountNumber: accountNumbers,
       bvn: { $regex: `${bvn}` },
     }).exec();
-    if (account === null)
+
+    if (account === null) {
       return { error: true, message: `Account does not exist` };
+    }
+    
     const update = await Account.updateMany(
       { accountNumber: accountNumbers, bvn: { $regex: `${bvn}$` } },
       { linked: link }
