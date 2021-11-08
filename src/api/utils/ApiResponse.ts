@@ -1,6 +1,6 @@
-import { IApiResponse } from 'api/typing/IApiResponse';
-import { Response } from 'express';
-import ApiStatusCodes from './ApiStatusCodes';
+import { IApiResponse } from "api/typing/IApiResponse";
+import { Response } from "express";
+import ApiStatusCodes from "./ApiStatusCodes";
 
 export default class ApiResponse {
   public static success(apiResponse: IApiResponse) {
@@ -11,7 +11,12 @@ export default class ApiResponse {
     });
   }
 
-  public static send(res: Response, status: number, message: string, data: any = null) {
+  public static send(
+    res: Response,
+    status: number,
+    message: string,
+    data: any = null
+  ) {
     res.status(status).send({
       status,
       message,
@@ -20,10 +25,19 @@ export default class ApiResponse {
   }
 
   public static error(data: IApiResponse) {
-    if (data.statusCode === parseInt('444')) {
-      return this.send(data.expressResponse, ApiStatusCodes.badRequest, data.error?.message);
+    if (data.statusCode === parseInt("444")) {
+      return this.send(
+        data.expressResponse,
+        ApiStatusCodes.badRequest,
+        data.error?.message
+      );
     }
 
-    return this.send(data.expressResponse, data.statusCode, data.message, data.error);
+    return this.send(
+      data.expressResponse,
+      data.statusCode,
+      data.message,
+      data.error
+    );
   }
 }

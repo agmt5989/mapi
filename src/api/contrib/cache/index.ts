@@ -1,8 +1,8 @@
-import redis, { RedisClient } from 'redis';
-import { promisify } from 'util';
-import Logger from '../../utils/logger';
+import redis, { RedisClient } from "redis";
+import { promisify } from "util";
+import Logger from "../../utils/logger";
 
-const logger = new Logger('mono-portal:adapters/cache');
+const logger = new Logger("mono-portal:adapters/cache");
 
 export interface IRedisClient extends RedisClient {
   setExAsync: (key: string, seconds: number, value: string) => Promise<any>;
@@ -11,27 +11,24 @@ export interface IRedisClient extends RedisClient {
   getAsync: (key: string) => Promise<any>;
 }
 
-
 const options = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: Number(process.env.REDIS_PORT) || 6379
-}
+  host: process.env.REDIS_HOST || "localhost",
+  port: Number(process.env.REDIS_PORT) || 6379,
+};
 
 const redisClient = redis.createClient(options) as IRedisClient;
 
-// if password is sent on redis 
-if(process.env.REDIS_PASSWORD) {
+// if password is sent on redis
+if (process.env.REDIS_PASSWORD) {
   redisClient.auth(process.env.REDIS_PASSWORD, (error, result) => {
-    if (error && error instanceof Error)
-      logger.log(error.message)
+    if (error && error instanceof Error) logger.log(error.message);
 
     logger.log(result);
   });
 }
 
-redisClient.on('error', function (error) {
-  if (error instanceof Error)
-    logger.log(error.message);
+redisClient.on("error", function (error) {
+  if (error instanceof Error) logger.log(error.message);
 });
 
 const getAsync = promisify(redisClient.get).bind(redisClient);
@@ -46,4 +43,4 @@ redisClient.setAsync = setAsync;
 redisClient.expireAsync = existsAsync;
 redisClient.expireAsync = expireAsync;
 
-export default redisClient
+export default redisClient;

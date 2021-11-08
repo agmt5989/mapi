@@ -1,4 +1,4 @@
-import { Joi, validate } from 'express-validation';
+import { Joi, validate } from "express-validation";
 
 export const createUserRequestSchema = {
   body: Joi.object({
@@ -13,19 +13,19 @@ export const createPasswordRequestSchema = {
   }),
   query: Joi.object({
     email: Joi.string().required(),
-  })
-}
+  }),
+};
 
 export const confirmEmailSchema = {
   body: Joi.object({
     email: Joi.string().required(),
     otp: Joi.string().required(),
   }),
-}
+};
 
 export const loginUserRequestSchema = {
   body: Joi.object({
     email: Joi.string().required(),
-    password: Joi.string().required()
+    password: Joi.string().required(),
   }),
 };
