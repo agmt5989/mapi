@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, response } from 'express';
 import { TTokenPayload } from '../typing/IUser';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import Logger from '../utils/logger';
@@ -18,7 +18,12 @@ export const JWT = (req: Request, res: Response, next: NextFunction) => {
   req.headers.authorization;
 
 if (!authToken) {
-  return ApiResponse.error(res, ApiStatusCodes.unAuthorized, null, 'token must be provided');
+  return ApiResponse.error({
+    expressResponse: response,
+    statusCode: ApiStatusCodes.unAuthorized,
+    data: null,
+    message: 'token must be provided'
+  })
 }
 
 authToken = authToken.split(' ')[0] === 'Bearer' ? authToken.split(' ')[1] : authToken;
@@ -28,18 +33,37 @@ try {
   // @ts-ignore
   const expired = Date.now() >= decoded?.exp * 1000;
 
-  if (expired) return ApiResponse.error(res, ApiStatusCodes.unAuthorized, null, 'token has expired');
+  if (expired) {
+    return ApiResponse.error({
+      expressResponse: response,
+      statusCode: ApiStatusCodes.unAuthorized,
+      data: null,
+      message: 'token has expired'
+    })
+  }
 
   const verified = jwt.verify(authToken, JWT_SECRET);
 
-  if (!verified) return ApiResponse.error(res, ApiStatusCodes.unAuthorized, null, 'invalid token provided');
+  if (!verified) {
+    return ApiResponse.error({
+      expressResponse: response,
+      statusCode: ApiStatusCodes.unAuthorized,
+      data: null,
+      message: 'invalid token provided'
+    });
+  }
   
   // @ts-ignore
   req.user = decoded;
   next();
 } catch (error) {
   if(error instanceof Error) {
-    return ApiResponse.error(res, ApiStatusCodes.serverError, null, error.message);
+    return ApiResponse.error({
+      expressResponse: response,
+      statusCode: ApiStatusCodes.serverError,
+      data: null,
+      message: error.message
+    });
   }
   next(error);
 }
