@@ -1,13 +1,13 @@
-import * as mongoose from 'mongoose';
-import { timestamps } from '../utils';
+import * as mongoose from "mongoose";
+import { timestamps } from "../utils";
 
 export enum BusinessStatus {
-  disabled = 'business_disabled',
-  blocked = 'business_blocked',
-  active = 'active',
-  pending = 'pending',
-  inactive = 'inactive',
-  rejected = 'rejected',
+  disabled = "business_disabled",
+  blocked = "business_blocked",
+  active = "active",
+  pending = "pending",
+  inactive = "inactive",
+  rejected = "rejected",
 }
 
 export interface IBusiness extends mongoose.Document {
@@ -52,21 +52,21 @@ export interface IBusiness extends mongoose.Document {
 
 export interface IBusinessModel extends mongoose.Model<IBusiness> {
   Statuses: {
-    active: 'active';
-    inactive: 'inactive';
-    pending: 'pending';
-    rejected: 'rejected';
+    active: "active";
+    inactive: "inactive";
+    pending: "pending";
+    rejected: "rejected";
   };
   AccountTypes: {
-    DEVELOPER: 'developer';
-    COMPANY: 'company';
+    DEVELOPER: "developer";
+    COMPANY: "company";
   };
 }
 
 const settlementAccountSchema = new mongoose.Schema({
   institution: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Bank',
+    ref: "Bank",
   },
   accountNumber: String,
   accountName: String,
@@ -103,29 +103,29 @@ const businessSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: Object.values(BusinessStatus),
-      default: 'inactive',
+      default: "inactive",
       index: true,
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       index: true,
     },
     country: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'ServiceCountry',
+      ref: "ServiceCountry",
       index: true,
     },
     subscription: {
       plan: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'SubscriptionPlan',
+        ref: "SubscriptionPlan",
         index: true,
       },
       addons: [
         {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'SubscriptionAddon',
+          ref: "SubscriptionAddon",
           index: true,
         },
       ],
@@ -137,7 +137,7 @@ const businessSchema = new mongoose.Schema(
           visible: { type: Boolean, default: true },
           features: [
             {
-              name: { type: String, default: 'payments' },
+              name: { type: String, default: "payments" },
               enabled: { type: Boolean, default: false },
             },
           ],
@@ -151,7 +151,7 @@ const businessSchema = new mongoose.Schema(
             spaces: { type: Number, default: 0 },
             plan: {
               type: mongoose.Schema.Types.ObjectId,
-              ref: 'ProductPlan',
+              ref: "ProductPlan",
             },
           },
         },
@@ -164,7 +164,7 @@ const businessSchema = new mongoose.Schema(
           features: [
             {
               // transfer === directpay === payments
-              name: 'payments',
+              name: "payments",
               enabled: false,
               hasWaitlist: true,
             },
@@ -178,7 +178,7 @@ const businessSchema = new mongoose.Schema(
           features: [],
           meta: {
             spaces: 0,
-            plan: '',
+            plan: "",
           },
         },
       },
@@ -188,21 +188,21 @@ const businessSchema = new mongoose.Schema(
       description: String,
     },
   },
-  { timestamps },
+  { timestamps }
 );
 
-const Business = mongoose.model('Business', businessSchema) as IBusinessModel;
+const Business = mongoose.model("Business", businessSchema) as IBusinessModel;
 
 Business.Statuses = {
-  active: 'active',
-  pending: 'pending',
-  inactive: 'inactive',
-  rejected: 'rejected',
+  active: "active",
+  pending: "pending",
+  inactive: "inactive",
+  rejected: "rejected",
 };
 
 Business.AccountTypes = {
-  DEVELOPER: 'developer',
-  COMPANY: 'company',
+  DEVELOPER: "developer",
+  COMPANY: "company",
 };
 
 export default Business;

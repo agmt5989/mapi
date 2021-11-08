@@ -1,1 +1,7 @@
-export type ILOGLEVEL = 'verbose' | 'debug' | 'silly' | 'error' | 'warn' | 'info';
+export type ILOGLEVEL =
+  | "verbose"
+  | "debug"
+  | "silly"
+  | "error"
+  | "warn"
+  | "info";

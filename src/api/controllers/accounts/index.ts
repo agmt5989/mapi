@@ -1,7 +1,7 @@
 import express from 'express';
 import { validate } from 'express-validation';
 import { toggleAccountRequestSchema } from './account.validator';
-import { AccountController } from './account.controller';
+import AccountController from './account.controller';
 import { JWT } from 'api/middlewares/jwt';
 
 

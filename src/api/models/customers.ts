@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
-import { timestamps } from '../utils';
-import { IApp } from './apps/apps';
-import { IBusiness } from './business';
+import mongoose from "mongoose";
+import { timestamps } from "../utils";
+import { IApp } from "./apps/apps";
+import { IBusiness } from "./business";
 
 export interface ICustomer extends mongoose.Document {
   firstName: string;
@@ -38,7 +38,7 @@ const mCustomerSchema = new mongoose.Schema(
     },
     business: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Business',
+      ref: "Business",
       index: true,
     },
     scope: {
@@ -55,18 +55,18 @@ const mCustomerSchema = new mongoose.Schema(
     },
     app: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'App',
+      ref: "App",
       index: true,
     },
     identity: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Identity',
+      ref: "Identity",
       index: true,
     },
   },
-  { timestamps },
+  { timestamps }
 );
 
-const Customer = mongoose.model<ICustomer>('Customer', mCustomerSchema);
+const Customer = mongoose.model<ICustomer>("Customer", mCustomerSchema);
 
 export default Customer;

@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-import { timestamps } from '../utils';
+import { timestamps } from "../utils";
 
 export interface IInstitution extends mongoose.Document {
   name: string;
@@ -19,19 +19,19 @@ type institutionStaticProps = {
   };
 };
 
-const mFormInputSchema =  new mongoose.Schema(
+const mFormInputSchema = new mongoose.Schema(
   {
     name: String,
     label: String,
     contentType: String,
     minLength: Number,
     maxLength: Number,
-    position: Number
+    position: Number,
   },
   { timestamps }
 );
 
-const FormInput = mongoose.model('FormInput', mFormInputSchema);
+const FormInput = mongoose.model("FormInput", mFormInputSchema);
 
 const mAuthMethodSchema = new mongoose.Schema(
   {
@@ -42,15 +42,15 @@ const mAuthMethodSchema = new mongoose.Schema(
       form: [
         {
           type: mongoose.Schema.Types.ObjectId,
-          ref: FormInput
-        }
-      ]
-    }
+          ref: FormInput,
+        },
+      ],
+    },
   },
   { timestamps }
 );
 
-const AuthMethod = mongoose.model('AuthMethod', mAuthMethodSchema);
+const AuthMethod = mongoose.model("AuthMethod", mAuthMethodSchema);
 
 const mInstitutionSchema = new mongoose.Schema(
   {
@@ -63,25 +63,22 @@ const mInstitutionSchema = new mongoose.Schema(
     authMethods: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: AuthMethod
-      }
-    ]
+        ref: AuthMethod,
+      },
+    ],
   },
-  { timestamps },
+  { timestamps }
 );
 
 const Institution = mongoose.model(
-  'Institution',
-  mInstitutionSchema,
+  "Institution",
+  mInstitutionSchema
 ) as mongoose.Model<IInstitution> & institutionStaticProps;
 Institution.Types = {
-  BUSINESS_BANKING: 'BUSINESS_BANKING',
-  PAYMENT_GATEWAY: 'PAYMENT_GATEWAY',
+  BUSINESS_BANKING: "BUSINESS_BANKING",
+  PAYMENT_GATEWAY: "PAYMENT_GATEWAY",
 };
 
-export {
-   AuthMethod,
-   FormInput
-}
+export { AuthMethod, FormInput };
 
 export default Institution;

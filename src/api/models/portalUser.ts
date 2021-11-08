@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-import { timestamps } from '../utils';
-import { ICustomer } from './customers';
+import mongoose from "mongoose";
+import { timestamps } from "../utils";
+import { ICustomer } from "./customers";
 
 export interface IPortalUser extends mongoose.Document {
   firstName: string;
@@ -48,12 +48,12 @@ const mPortalUserSchema = new mongoose.Schema(
     emailOTP: String,
     emailVerified: {
       type: Boolean,
-      default: false
+      default: false,
     },
   },
-  { timestamps },
+  { timestamps }
 );
 
-const PortalUser = mongoose.model<IPortalUser>('PortaUser', mPortalUserSchema);
+const PortalUser = mongoose.model<IPortalUser>("PortaUser", mPortalUserSchema);
 
 export default PortalUser;

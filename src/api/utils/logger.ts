@@ -1,5 +1,5 @@
-import winston, { Logger as WinstonLogger } from 'winston';
-import { ILOGLEVEL } from '../typing/ILogLevels';
+import winston, { Logger as WinstonLogger } from "winston";
+import { ILOGLEVEL } from "../typing/ILogLevels";
 
 /**
  * Logger class logs messages
@@ -15,7 +15,7 @@ export default class Logger {
   constructor(name: string) {
     this.name = name;
 
-    this.logLevel = process.env.LOG_LEVEL?.toLowerCase() || 'info';
+    this.logLevel = process.env.LOG_LEVEL?.toLowerCase() || "info";
 
     const opts: winston.LoggerOptions = {
       exitOnError: false,
@@ -24,25 +24,32 @@ export default class Logger {
           label: name,
         }),
         winston.format.timestamp({
-          format: 'MMM-DD-YYYY HH:mm:ss',
+          format: "MMM-DD-YYYY HH:mm:ss",
         }),
         winston.format.printf((info) => {
-          return `${info.level}: ${info.label}: ${[info.timestamp]}: ${info.message}`;
-        }),
+          return `${info.level}: ${info.label}: ${[info.timestamp]}: ${
+            info.message
+          }`;
+        })
       ),
     };
 
-    opts.transports = [new winston.transports.Console({ level: this.logLevel })];
+    opts.transports = [
+      new winston.transports.Console({ level: this.logLevel }),
+    ];
 
     this.logger = winston.createLogger(opts);
   }
 
   /** logs a message */
-  public log(value: string | Error, level: ILOGLEVEL | string = 'default'): void {
-    const logLevel = level === 'default' ? this.logLevel : level;
+  public log(
+    value: string | Error,
+    level: ILOGLEVEL | string = "default"
+  ): void {
+    const logLevel = level === "default" ? this.logLevel : level;
 
-    if(value instanceof Error) {
-      this.logger.log('error', value.message)
+    if (value instanceof Error) {
+      this.logger.log("error", value.message);
     }
     this.logger.log(logLevel, value);
   }

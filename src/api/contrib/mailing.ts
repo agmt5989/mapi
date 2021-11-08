@@ -1,4 +1,4 @@
-import Mailgun from 'mailgun-js';
+import Mailgun from "mailgun-js";
 
 const mailgun = new Mailgun({
   apiKey: process.env.MAILGUN_API_KEY as string,
@@ -23,8 +23,8 @@ export class Mailing {
   }
 
   send(data: ISendMailInterface) {
-    let { templateVariables, ...rest} = data;
-    if(templateVariables) {
+    let { templateVariables, ...rest } = data;
+    if (templateVariables) {
       templateVariables = JSON.stringify(templateVariables);
     }
 

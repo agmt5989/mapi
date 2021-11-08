@@ -1,27 +1,29 @@
-import 'dotenv/config';
-import mongoose from 'mongoose';
-import Logger from '../../utils/logger';
-import Obj from '../../typing/Obj';
+import "dotenv/config";
+import mongoose from "mongoose";
+import Logger from "../../utils/logger";
+import Obj from "../../typing/Obj";
 
-const logger = new Logger('mono-portal:adapters/mongo');
+const logger = new Logger("mono-portal:adapters/mongo");
 
 export default class Mongo {
   public configObject: Obj;
 
-  host: string = process.env.MONGO_DB_HOST || 'localhost';
+  host: string = process.env.MONGO_DB_HOST || "localhost";
 
-  port: string = process.env.MDB_PORT || '27019';
+  port: string = process.env.MDB_PORT || "27019";
 
-  dbname: string = process.env.DATABASE_NAME || 'monodb';
+  dbname: string = process.env.DATABASE_NAME || "monodb";
 
-  authUser: string = process.env.MDB_USRNAME || '';
+  authUser: string = process.env.MDB_USRNAME || "";
 
-  authPass: string = process.env.MDB_PASSWORD || '';
+  authPass: string = process.env.MDB_PASSWORD || "";
 
   constructor() {
     this.configObject = {
       development: {
-        DATABASE_URL: process.env.DATABASE_URL || `mongodb://${this.host}:${this.port}/${this.dbname}`,
+        DATABASE_URL:
+          process.env.DATABASE_URL ||
+          `mongodb://${this.host}:${this.port}/${this.dbname}`,
         DATABASE_HOSTNAME: this.host,
         DATABASE_PORT: this.port,
         DATABASE_NAME: this.dbname,
@@ -35,7 +37,9 @@ export default class Mongo {
         },
       },
       production: {
-        DATABASE_URL: process.env.DATABASE_URL || `mongodb://${this.host}:${this.port}/${this.dbname}`,
+        DATABASE_URL:
+          process.env.DATABASE_URL ||
+          `mongodb://${this.host}:${this.port}/${this.dbname}`,
         DATABASE_HOSTNAME: this.host,
         DATABASE_PORT: this.port,
         DATABASE_NAME: this.dbname,
@@ -60,10 +64,12 @@ export default class Mongo {
 mongoose.Promise = global.Promise;
 // mongoose.set('useFindAndModify', false);
 const config = new Mongo();
-const dbConfig = config.getConfig(process.env.NODE_ENV || 'development');
+const dbConfig = config.getConfig(process.env.NODE_ENV || "development");
 mongoose.connect(dbConfig.DATABASE_URL, dbConfig.options, (err) => {
   if (err) logger.log(err.message);
   else {
-    logger.log(`Connected to mongodb successfully on ${process.env.NODE_ENV} ${dbConfig.DATABASE_URL}`);
+    logger.log(
+      `Connected to mongodb successfully on ${process.env.NODE_ENV} ${dbConfig.DATABASE_URL}`
+    );
   }
 });
