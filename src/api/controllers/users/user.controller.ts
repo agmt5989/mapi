@@ -20,11 +20,24 @@ export class UserController {
 
       const result = await this.userService.login(request.body);
 
-      if (result.error) return ApiResponse.error(response, ApiStatusCodes.badRequest, result.data, result.message);
+      if (result.error) {
+        return ApiResponse.error({
+          expressResponse: response,
+          statusCode: ApiStatusCodes.badRequest,
+          data: result.data,
+          message: result.message
+        });
+      }
       
-      const responseData = { user: result.data, token: result.data ? generateJWT(result.data) : null }
+      const responseData = { user: result.data, 
+                             token: result.data ? generateJWT(result.data) : null }
 
-      ApiResponse.success(response, ApiStatusCodes.success, responseData, result.message);
+      ApiResponse.success({
+        expressResponse: response,
+        statusCode: ApiStatusCodes.success,
+        data: responseData,
+        message: result.message
+      });
 
     } catch (error: Error | any) {
       this.logger.log(error);
@@ -36,10 +49,21 @@ export class UserController {
     try {
 
       const customer = await this.userService.getStarted(request.body);
+      if (!customer) {
+        return ApiResponse.error({
+          expressResponse: response,
+          statusCode: ApiStatusCodes.badRequest,
+          data: null,
+          message: 'Invalid credential, Already on Portal or does not match a Mono account'
+        })
+      }
 
-      if (!customer) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 'Invalid credential, Already on Portal or does not match a Mono account');
-
-      ApiResponse.success(response, ApiStatusCodes.success, customer, `Email Verification Code sent to ${customer.email}`);
+      ApiResponse.success({
+        expressResponse: response,
+        statusCode: ApiStatusCodes.success,
+        data: customer,
+        message: `Email Verification Code sent to ${customer.email}`
+      });
 
     } catch (error: Error | any) {
       this.logger.log(error.message);
@@ -54,10 +78,22 @@ export class UserController {
 
       const isVerified = await this.userService.confirmEmail(otp, email);
 
-      if (!isVerified) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 'Invalid Email Verification Code');
+      if (!isVerified) {
+        return ApiResponse.error({
+          expressResponse: response,
+          statusCode: ApiStatusCodes.badRequest,
+          data: null,
+          message: 'Invalid Email Verification Code'
+        });
+      }
 
-      ApiResponse.success(response, ApiStatusCodes.success, null, `${email} has been successfully verified to access Mono Portal`)
- 
+      ApiResponse.success({
+        expressResponse: response,
+        statusCode: ApiStatusCodes.success,
+        data: null,
+        message: `${email} has been successfully verified to access Mono Portal`
+      });
+  
     } catch (error: Error | any) {
       this.logger.log(error.message);
       next(error)
@@ -70,15 +106,33 @@ export class UserController {
 
       const { password } = request.body;
       const { email } = request.query;
-      if(password > 8) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 'Passwords must be greater than 8 characters'); 
+      if(password > 8) {
+        return ApiResponse.error({
+          expressResponse: response,
+          statusCode: ApiStatusCodes.badRequest,
+          data: null,
+          message: 'Passwords must be greater than 8 characters'
+        })
+      }
 
       // @ts-ignore
       const result = await this.userService.createPassword(password, email);
 
-      if (!result) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, 
-        `Could not choose password successfully for ${email}, please ensure the email is verified`); 
+      if (!result) {
+       return ApiResponse.error({
+        expressResponse: response,
+        statusCode: ApiStatusCodes.badRequest,
+        data: null,
+        message: `Could not choose password successfully for ${email}, please ensure the email is verified`
+       });
+      }
 
-      ApiResponse.success(response, ApiStatusCodes.success, null,`Successfully set password for ${email}`)
+      ApiResponse.success({
+        expressResponse: response,
+        statusCode: ApiStatusCodes.success,
+        data: null,
+        message: `${email} has been successfully verified to access Mono Portal`
+      })
 
     } catch (error: Error | any) {
       this.logger.log(error.message);
@@ -113,9 +167,21 @@ export class UserController {
 
       const isSent = await this.userService.resendOTP(request.body);
 
-      if (!isSent.error) return ApiResponse.error(response, ApiStatusCodes.badRequest, null, isSent.message);
+      if (!isSent.error) {
+        return ApiResponse.error({
+          expressResponse: response,
+          statusCode: ApiStatusCodes.badRequest,
+          data: null,
+          message: isSent.message
+        });
+      }
 
-      ApiResponse.success(response, ApiStatusCodes.success, null, isSent.message);
+      ApiResponse.success({
+        expressResponse: response,
+        statusCode: ApiStatusCodes.success,
+        data: null,
+        message: isSent.message
+      });
 
     } catch (error: Error | any) {
       this.logger.log(error.message);
