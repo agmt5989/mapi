@@ -6,12 +6,15 @@ import { validationErrorWrapper } from "../exceptions/validaitonExceptionHandler
 import { JWT } from "../middlewares/jwt";
 
 import userRoutes from "../controllers/users";
+import appRoutes from "../controllers/apps";
 import accountRoutes from "../controllers/accounts";
 
 const indexRoutes = express.Router();
 
 indexRoutes.use("/users", userRoutes);
 indexRoutes.use("/accounts", JWT, accountRoutes);
+indexRoutes.use("/apps", JWT, appRoutes);
+
 indexRoutes.use(validationErrorWrapper);
 
 indexRoutes.get("/", (req, res) => {

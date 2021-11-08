@@ -1,36 +1,34 @@
+import Account, { IAccount } from "../../models/account";
 
-import Account from "../../models/account";
-
-export default class AccountService {
+export class AppService {
   constructor() {}
-
   /**
    *
    * @param bvn unique bvn of the customer
-   * @returns {[ institution : {}, connectedAccounts: [], allaccounts: [] ]}
+   * @returns {[ app : {}, connectedAccounts: [], allaccounts: [] ]}
    */
-  public async getAccounts(bvn: string) {
+  public async getApps(bvn: string) {
     return await Account.aggregate([
       // match by the bvn of the customer
       {
         $match: {
-          bvn: { $regex: `${bvn}$` },
+          bvn: { $regex: bvn },
         },
       },
-      // looks up by institution id to get the complete object returned
+      // looks up by app id to get the complete object returned
       {
         $lookup: {
-          from: "institutions",
-          localField: "institution",
+          from: "apps",
+          localField: "app",
           foreignField: "_id",
-          as: "institution",
+          as: "app",
         },
       },
-      { $unwind: "$institution" },
-      // Groups entries that match bvn query by the institution
+      { $unwind: "$app" },
+      // Groups entries that match bvn query by the app
       {
         $group: {
-          _id: "$institution",
+          _id: "$app",
           "Accounts connected": {
             $push: {
               $cond: [
@@ -45,7 +43,7 @@ export default class AccountService {
           },
         },
       },
-      // This adds field to ensure no repeated entries on the accounts to be returned (connected and all)
+      // This adds field to ensure no repeated entries on the apps to be returned (connected and all)
       {
         $addFields: {
           "Accounts connected": {
@@ -94,13 +92,14 @@ export default class AccountService {
       {
         $project: {
           _id: 0,
-          institution: {
-            identifier: "$_id.identifier",
-            name: "$_id.name",
+          app: {
             icon: "$_id.icon",
-            bankCode: "$_id.bankCode",
-            type: "$_id.type",
-            primaryColor: "$_id.primaryColor",
+            live: "$_id.live",
+            name: "$_id.name",
+            displayName: "$_id.displayName",
+            product: "$_id.product",
+            industry: "$_id.industry",
+            scopes: "$_id.scopes",
           },
           allAccounts: {
             $filter: {
@@ -124,43 +123,41 @@ export default class AccountService {
     ]).exec();
   }
 
-  public async toggleAccount(
-    accountNumbers: string,
+  public async toggleApps(
+    apps: string,
     bvn: string,
     link: boolean
   ): Promise<{ error: boolean; message: string; data? }> {
     const state = link ? "linked" : "unlinked";
 
-    if (accountNumbers === "all") {
+    if (apps === "all") {
+      // @ts-ignore
       const update = await Account.updateMany(
         { bvn: { $regex: `${bvn}` } },
         { linked: link }
       ).exec();
+      
       return {
         error: false,
-        message: `All Accounts ${state} successfully`,
+        message: `All App ${state} successfully`,
         data: update,
       };
     }
 
+    // @ts-ignore
     const account = await Account.find({
-      accountNumber: accountNumbers,
+      app: apps,
       bvn: { $regex: `${bvn}` },
     }).exec();
 
-    if (account === null) {
-      return { error: true, message: `Account does not exist` };
-    }
+    if (account === null) return { error: true, message: `App does not exist` };
 
     const update = await Account.updateMany(
-      { accountNumber: accountNumbers, bvn: { $regex: `${bvn}$` } },
+      // @ts-ignore
+      { app: apps, bvn: { $regex: `${bvn}` } },
       { linked: link }
     ).exec();
 
-    return {
-      error: false,
-      message: `Account ${state} successfully`,
-      data: update,
-    };
+    return { error: false, message: `App ${state} successfully`, data: update };
   }
 }
