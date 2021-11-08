@@ -1,12 +1,9 @@
 import Account, { IAccount } from '../../models/account';
-import mongoose from 'mongoose';
-import Customer from '../../models/customers';
 
 export class AppService {
   constructor() {}
 
   public async getApps(bvn: string) {
-
     return await Account.aggregate([
       {
         $match: {
@@ -97,11 +94,31 @@ export class AppService {
       {
         $project: {
             _id: 0,
-            "App": "$_id",
-            "All accounts numbers":  "$All accounts numbers",
-            "Accounts connected": "$Accounts connected"
-        }
-      },
+            "App": {
+              icon: "$_id.icon",
+              live: "$_id.live",
+              name: "$_id.name",
+              displayName: "$_id.displayName",
+              product: "$_id.product",
+              industry: "$_id.industry",
+              scopes: "$_id.scopes",
+            },
+            "allAccounts": {
+              $filter: {
+                input: "$All accounts numbers",
+                as: "account",
+                cond: { $ne: [ "$$account", null ] }
+              }
+            },
+            "connectedAcounts": {
+              $filter: {
+                input: "$Accounts connected",
+                as: "account",
+                cond: { $ne: [ "$$account", null ] }
+              }
+            }
+          } 
+        },
       {
         $sort: { updated_at: -1 },
       },
@@ -114,18 +131,18 @@ export class AppService {
     
     if (apps === 'all') {
       // @ts-ignore
-      const update = await Account.updateMany({ app: apps, bvn: { $regex: `${bvn}`}}, { linked: link}).exec();
-      return { error: false, message: `All Accounts ${state} successfully`, data: update };
+      const update = await Account.updateMany({ bvn: { $regex: `${bvn}`}}, { linked: link}).exec();
+      return { error: false, message: `All App ${state} successfully`, data: update };
     }
 
     // @ts-ignore
     const account = await Account.findOne({ app: apps, bvn: { $regex: `${bvn}`}}).exec();
-    if (account === null) return { error: true, message: `Account does not exist`}
+    if (account === null) return { error: true, message: `App does not exist`}
 
-    if(account.linked === link) return { error: true, message: `Account is already ${state}`};
+    if(account.linked === link) return { error: true, message: `App is already ${state}`};
     // @ts-ignore
     const update = await Account.findOneAndUpdate({ app: apps, bvn: { $regex: `${bvn}`}}, { linked: link}).exec();
 
-    return { error: false, message: `Account ${state} successfully`, data: update };
+    return { error: false, message: `App ${state} successfully`, data: update };
   }
 }

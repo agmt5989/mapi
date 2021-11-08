@@ -1,6 +1,4 @@
 import Account, { IAccount } from '../../models/account';
-import mongoose from 'mongoose';
-import Customer from '../../models/customers';
 
 export class AccountService {
   constructor() {}
@@ -26,43 +24,102 @@ export class AccountService {
       },
       { $unwind: "$institution" },
       {
-        $group: {
-          _id: "$accountNumber",
-          id: { $first: "$_id" },
-          accountNumber: { $first: "$accountNumber" },
-          name: { $first: "$name" },
-          balance: { $first: "$balance" },
-          currency: { $first: "$currency" },
-          customer: { $first: "$customer" },
-          bvn: { $first: "$bvn" },
-          linked: { $first: "$linked" },
-          type: { $first: "$type" },
-          institution: { $first: "$institution" },
-          updated_at: { $first: "$updated_at" },
-          created_at: { $first: "$created_at" },
-        },
-      },
-      {
           $group: {
               _id: "$institution",
-              "noLinkedAccounts": {
-                "$sum": { "$cond": [
-                    { "$eq": [ "$linked", true ] },
-                    1,
-                    0
-                ]}
-               },
-               "noValidAccounts": {
-                "$sum": { "$cond": [
-                    { "$ne": [ "$accountNumber", null ] },
-                    1,
-                    0
-                ]}
-               },
-              "allAccounts": {
+              "Accounts connected": {
+                "$push": {
+                    "$cond":[
+                        {"$eq":["$linked", true]},
+                        {"accountNumber":"$accountNumber"},
+                        null
+                    ]
+                }
+              },
+              "All Account Numbers": {
                   $push: "$accountNumber",
               }
           }
+      },
+      {
+        $addFields: {
+        "Accounts connected": {
+          $reduce: {
+            input: "$Accounts connected",
+            initialValue: [],
+            in: {
+              $concatArrays: [
+                "$$value",
+                {
+                  $cond: [
+                    {
+                      $in: [
+                        "$$this.accountNumber",
+                        "$$value"
+                      ]
+                    },
+                    [],
+                    [
+                      "$$this.accountNumber"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "All accounts numbers": {
+          $reduce: {
+            input: "$All Account Numbers",
+            initialValue: [],
+            in: {
+              $concatArrays: [
+                "$$value",
+                {
+                  $cond: [
+                    {
+                      $in: [
+                        "$$this",
+                        "$$value"
+                      ]
+                    },
+                    [],
+                    [
+                      "$$this"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
+        }
+        }
+      },
+      {
+           $project: {
+            _id: 0,
+            "Institution": {
+              identifier: "$_id.identifier",
+              name: "$_id.name",
+              icon: "$_id.icon",
+              bankCode: "$_id.bankCode",
+              type: "$_id.type",
+              primaryColor: "$_id.primaryColor",
+            },
+            "allAccounts": {
+              $filter: {
+                input: "$All accounts numbers",
+                as: "account",
+                cond: { $ne: [ "$$account", null ] }
+              }
+            },
+            "connectedAcounts": {
+              $filter: {
+                input: "$Accounts connected",
+                as: "account",
+                cond: { $ne: [ "$$account", null ] }
+              }
+            }
+        }
       },
       {
         $sort: { updated_at: -1 },
