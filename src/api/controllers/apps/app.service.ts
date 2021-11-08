@@ -1,9 +1,9 @@
-import Account, { IAccount } from '../../models/account';
+import Account, { IAccount } from "../../models/account";
 
 export class AppService {
   constructor() {}
   /**
-   * 
+   *
    * @param bvn unique bvn of the customer
    * @returns {[ app : {}, connectedAccounts: [], allaccounts: [] ]}
    */
@@ -13,7 +13,6 @@ export class AppService {
       {
         $match: {
           bvn: { $regex: bvn },
-         
         },
       },
       // looks up by app id to get the complete object returned
@@ -26,107 +25,97 @@ export class AppService {
         },
       },
       { $unwind: "$app" },
-      // Groups entries that match bvn query by the app 
+      // Groups entries that match bvn query by the app
       {
         $group: {
           _id: "$app",
           "Accounts connected": {
-            "$push": {
-                "$cond":[
-                    {"$eq":["$linked", true]},
-                    {"accountNumber":"$accountNumber"},
-                    null
-                ]
-            }
+            $push: {
+              $cond: [
+                { $eq: ["$linked", true] },
+                { accountNumber: "$accountNumber" },
+                null,
+              ],
+            },
           },
           "All Account Numbers": {
-              $push: "$accountNumber",
-          }
-        }
+            $push: "$accountNumber",
+          },
+        },
       },
       // This adds field to ensure no repeated entries on the apps to be returned (connected and all)
       {
         $addFields: {
-        "Accounts connected": {
-          $reduce: {
-            input: "$Accounts connected",
-            initialValue: [],
-            in: {
-              $concatArrays: [
-                "$$value",
-                {
-                  $cond: [
-                    {
-                      $in: [
-                        "$$this.accountNumber",
-                        "$$value"
-                      ]
-                    },
-                    [],
-                    [
-                      "$$this.accountNumber"
-                    ]
-                  ]
-                }
-              ]
-            }
-          }
+          "Accounts connected": {
+            $reduce: {
+              input: "$Accounts connected",
+              initialValue: [],
+              in: {
+                $concatArrays: [
+                  "$$value",
+                  {
+                    $cond: [
+                      {
+                        $in: ["$$this.accountNumber", "$$value"],
+                      },
+                      [],
+                      ["$$this.accountNumber"],
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+          "All accounts numbers": {
+            $reduce: {
+              input: "$All Account Numbers",
+              initialValue: [],
+              in: {
+                $concatArrays: [
+                  "$$value",
+                  {
+                    $cond: [
+                      {
+                        $in: ["$$this", "$$value"],
+                      },
+                      [],
+                      ["$$this"],
+                    ],
+                  },
+                ],
+              },
+            },
+          },
         },
-        "All accounts numbers": {
-          $reduce: {
-            input: "$All Account Numbers",
-            initialValue: [],
-            in: {
-              $concatArrays: [
-                "$$value",
-                {
-                  $cond: [
-                    {
-                      $in: [
-                        "$$this",
-                        "$$value"
-                      ]
-                    },
-                    [],
-                    [
-                      "$$this"
-                    ]
-                  ]
-                }
-              ]
-            }
-          }
-        }
-        }
       },
       // This projects the data to be returned from the querry
       {
         $project: {
-            _id: 0,
-            "app": {
-              icon: "$_id.icon",
-              live: "$_id.live",
-              name: "$_id.name",
-              displayName: "$_id.displayName",
-              product: "$_id.product",
-              industry: "$_id.industry",
-              scopes: "$_id.scopes",
+          _id: 0,
+          app: {
+            icon: "$_id.icon",
+            live: "$_id.live",
+            name: "$_id.name",
+            displayName: "$_id.displayName",
+            product: "$_id.product",
+            industry: "$_id.industry",
+            scopes: "$_id.scopes",
+          },
+          allAccounts: {
+            $filter: {
+              input: "$All accounts numbers",
+              as: "account",
+              cond: { $ne: ["$$account", null] },
             },
-            "allAccounts": {
-              $filter: {
-                input: "$All accounts numbers",
-                as: "account",
-                cond: { $ne: [ "$$account", null ] }
-              }
+          },
+          connectedAcounts: {
+            $filter: {
+              input: "$Accounts connected",
+              as: "account",
+              cond: { $ne: ["$$account", null] },
             },
-            "connectedAcounts": {
-              $filter: {
-                input: "$Accounts connected",
-                as: "account",
-                cond: { $ne: [ "$$account", null ] }
-              }
-            }
-        } 
+          },
+        },
       },
       {
         $sort: { updated_at: -1 },
@@ -134,22 +123,38 @@ export class AppService {
     ]).exec();
   }
 
-  public async toggleApps(apps: string, bvn: string, link: boolean): Promise<{ error: boolean, message: string, data?}> {
+  public async toggleApps(
+    apps: string,
+    bvn: string,
+    link: boolean
+  ): Promise<{ error: boolean; message: string; data? }> {
+    const state = link ? "linked" : "unlinked";
 
-    const state = link ? 'linked' : 'unlinked';
-    
-    if (apps === 'all') {
+    if (apps === "all") {
       // @ts-ignore
-      const update = await Account.updateMany({ bvn: { $regex: `${bvn}`}}, { linked: link}).exec();
-      return { error: false, message: `All App ${state} successfully`, data: update };
+      const update = await Account.updateMany(
+        { bvn: { $regex: `${bvn}` } },
+        { linked: link }
+      ).exec();
+      return {
+        error: false,
+        message: `All App ${state} successfully`,
+        data: update,
+      };
     }
 
     // @ts-ignore
-    const account = await Account.find({ app: apps, bvn: { $regex: `${bvn}`}}).exec();
-    if (account === null) return { error: true, message: `App does not exist`}
+    const account = await Account.find({
+      app: apps,
+      bvn: { $regex: `${bvn}` },
+    }).exec();
+    if (account === null) return { error: true, message: `App does not exist` };
 
-    // @ts-ignore
-    const update = await Account.updateMany({ app: apps, bvn: { $regex: `${bvn}`}}, { linked: link}).exec();
+    const update = await Account.updateMany(
+      // @ts-ignore
+      { app: apps, bvn: { $regex: `${bvn}` } },
+      { linked: link }
+    ).exec();
 
     return { error: false, message: `App ${state} successfully`, data: update };
   }

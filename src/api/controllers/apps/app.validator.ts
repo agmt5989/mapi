@@ -1,4 +1,4 @@
-import { Joi, validate } from 'express-validation';
+import { Joi, validate } from "express-validation";
 
 export const toggleAppRequestSchema = {
   body: Joi.object({

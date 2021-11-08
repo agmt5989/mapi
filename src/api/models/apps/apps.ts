@@ -1,26 +1,26 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-import { timestamps } from '../../utils/index';
-import { IBusiness } from '../business';
+import { timestamps } from "../../utils/index";
+import { IBusiness } from "../business";
 
 export enum MonoProducts {
-  CONNECT = 'CONNECT',
-  DIRECT_DEBIT = 'TRANSFER_PAY',
-  PERCEPT = 'PERCEPT',
-  MY_PASS = 'MY_PASS',
+  CONNECT = "CONNECT",
+  DIRECT_DEBIT = "TRANSFER_PAY",
+  PERCEPT = "PERCEPT",
+  MY_PASS = "MY_PASS",
 }
 
 export enum CustomDataSyncInterval {
-  daily = 'DAILY',
-  weekly = 'WEEKLY',
-  monthly = 'MONTHLY',
-  yearly = 'YEARLY',
+  daily = "DAILY",
+  weekly = "WEEKLY",
+  monthly = "MONTHLY",
+  yearly = "YEARLY",
 }
 
 export interface IApp extends mongoose.Document {
   name: string;
   icon: string;
-  business: IBusiness['_id'];
+  business: IBusiness["_id"];
   displayName: string;
   redirectUri: string;
   live: boolean;
@@ -36,16 +36,16 @@ export interface IApp extends mongoose.Document {
 
 type appStaticProps = {
   LinkAccountTypes: {
-    ALL: 'all';
-    PERSONAL: 'personal';
-    BUSINESS: 'business';
+    ALL: "all";
+    PERSONAL: "personal";
+    BUSINESS: "business";
   };
 };
 
 const LinkAccountTypes = {
-  ALL: 'all',
-  PERSONAL: 'personal',
-  BUSINESS: 'business',
+  ALL: "all",
+  PERSONAL: "personal",
+  BUSINESS: "business",
 };
 
 const mAppSchema = new mongoose.Schema(
@@ -53,12 +53,12 @@ const mAppSchema = new mongoose.Schema(
     name: String,
     icon: {
       type: String,
-      default: '',
+      default: "",
     },
 
     business: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Business',
+      ref: "Business",
       index: true,
     },
     displayName: String,
@@ -70,7 +70,7 @@ const mAppSchema = new mongoose.Schema(
     },
     linkAccountType: {
       type: String,
-      enum: ['personal', 'business', 'all'],
+      enum: ["personal", "business", "all"],
       index: true,
     },
     scopes: {
@@ -84,15 +84,15 @@ const mAppSchema = new mongoose.Schema(
     product: {
       type: String,
       required: true,
-      enum: ['PERCEPT', 'MY_PASS', 'CONNECT'],
-      default: 'CONNECT',
+      enum: ["PERCEPT", "MY_PASS", "CONNECT"],
+      default: "CONNECT",
       index: true,
     },
   },
-  { timestamps },
+  { timestamps }
 );
 
-const App = mongoose.model('App', mAppSchema) as mongoose.Model<IApp> &
+const App = mongoose.model("App", mAppSchema) as mongoose.Model<IApp> &
   appStaticProps;
 // @ts-ignore
 App.LinkAccountTypes = LinkAccountTypes;
