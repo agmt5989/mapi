@@ -1,5 +1,5 @@
 import { IPortalUser } from "api/models/portalUser";
-import { ICustomer } from "../models/customers";
+
 
 export interface IGetStartedRequest {
  phone: string,
