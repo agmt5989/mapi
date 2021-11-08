@@ -195,7 +195,6 @@ export class UserService {
       firstName: customer.firstName,
       lastName: customer.lastName,
       name: customer.name,
-      customer: customer.id,
       scope: customer.scope,
       email: customer.email,
       phone: customer.phone,
