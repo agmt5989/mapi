@@ -1,13 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 import Logger from "../../utils/logger";
-import { AccountService } from "./account.service";
+import AccountService from "./account.service";
 import ApiResponse from "../../utils/ApiResponse";
 import ApiStatusCodes from "../../utils/ApiStatusCodes";
 
-export class AccountController {
+export default class AccountController {
   private readonly logger: Logger = new Logger(
     "mono-portal:controllers/user/account.controller"
   );
+
   private accountService: AccountService;
 
   constructor() {
@@ -31,7 +32,7 @@ export class AccountController {
         });
       }
 
-      ApiResponse.success({
+      return ApiResponse.success({
         expressResponse: response,
         statusCode: ApiStatusCodes.success,
         data: accounts,

@@ -1,8 +1,10 @@
-import express from "express";
-import { validate } from "express-validation";
-import { toggleAccountRequestSchema } from "./account.validator";
-import { AccountController } from "./account.controller";
-import { JWT } from "api/middlewares/jwt";
+
+import express from 'express';
+import { validate } from 'express-validation';
+import { toggleAccountRequestSchema } from './account.validator';
+import AccountController from './account.controller';
+import { JWT } from 'api/middlewares/jwt';
+
 
 const accountRoutes = express.Router();
 

@@ -1,6 +1,7 @@
-import Account, { IAccount } from "../../models/account";
 
-export class AccountService {
+import Account from "../../models/account";
+
+export default class AccountService {
   constructor() {}
 
   /**
@@ -150,7 +151,7 @@ export class AccountService {
     if (account === null) {
       return { error: true, message: `Account does not exist` };
     }
-    
+
     const update = await Account.updateMany(
       { accountNumber: accountNumbers, bvn: { $regex: `${bvn}$` } },
       { linked: link }

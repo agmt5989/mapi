@@ -13,7 +13,6 @@ export interface IPortalUser extends mongoose.Document {
   password?: string;
   emailOTP: string;
   emailVerified: boolean;
-  customer: ICustomer;
 }
 
 const mPortalUserSchema = new mongoose.Schema(
@@ -50,11 +49,6 @@ const mPortalUserSchema = new mongoose.Schema(
     emailVerified: {
       type: Boolean,
       default: false,
-    },
-    customer: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Customer",
-      index: true,
     },
   },
   { timestamps }

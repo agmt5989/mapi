@@ -14,6 +14,7 @@ const indexRoutes = express.Router();
 indexRoutes.use("/users", userRoutes);
 indexRoutes.use("/accounts", JWT, accountRoutes);
 indexRoutes.use("/apps", JWT, appRoutes);
+
 indexRoutes.use(validationErrorWrapper);
 
 indexRoutes.get("/", (req, res) => {
