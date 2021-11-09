@@ -18,4 +18,4 @@ jobs:
           key: ${{ secrets.STUDIO_KEY }}
           script: |
             cd ~
-            pm2 start && pm2 restart ecosystem.config.js --only mono-portal-api
+            pm2 start --only mono-portal-api --env production && pm2 restart ecosystem.config.js --only mono-portal-api
