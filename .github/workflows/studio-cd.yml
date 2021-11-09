@@ -10,12 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Execute
-        uses: appleboy/ssh-action@master
+        uses: fifsky/ssh-action@master
         with:
           host: ${{ secrets.STUDIO_SERVER_HOST }}
-          username: ${{ secrets.STUDIO_SERVER_USERNAME }}
+          user: ${{ secrets.STUDIO_SERVER_USERNAME }}
           port: 22
           key: ${{ secrets.STUDIO_KEY }}
-          script: |
+          command: |
+            cd mono-portal-api
+            git pull
+            npm i && npm run build
             cd ~
             pm2 start --only mono-portal-api --env production && pm2 restart ecosystem.config.js --only mono-portal-api
