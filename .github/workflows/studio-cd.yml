@@ -3,7 +3,7 @@ name: Deployment For Studio
 on:
   push:
     branches:
-      develop
+      cicd
 
 jobs:
   deploy:
