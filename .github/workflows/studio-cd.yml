@@ -19,7 +19,7 @@ jobs:
           SOURCE: "./"
           REMOTE_HOST: ${{ secrets.STUDIO_SERVER_HOST }}
           REMOTE_USER: ${{ secrets.STUDIO_SERVER_USERNAME }}
-          TARGET: "/home/ubuntu/mono-portal-api"
+          TARGET: "/home/${{ secrets.STUDIO_SERVER_USERNAME }}/mono-portal-api"
 
       - name: Execute pm2 after every deploy
         uses: appleboy/ssh-action@master
