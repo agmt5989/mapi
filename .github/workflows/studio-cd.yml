@@ -1,9 +1,12 @@
 name: Deployment For Studio
 
 on:
-  [push, pull_request]:
+  push:
     branches:
-      develop
+      - develop
+  pull_request:
+    branches:
+      - develop
 
 jobs:
   deploy:
