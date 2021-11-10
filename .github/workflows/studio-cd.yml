@@ -1,9 +1,9 @@
 name: Deployment For Studio
 
 on:
-  push:
+  [push, pull_request]:
     branches:
-      cicd
+      develop
 
 jobs:
   deploy:
@@ -28,9 +28,8 @@ jobs:
           script: |
             cd mono-portal-api
             git pull
-            #export NVM_DIR=~/.nvm
-            #source ~/.nvm/nvm.sh
+            rm -rf build
             npm i
             npm run build
             cd ~
-            pm2 restart ecosystem.config.js --only mono-home --env production
+            pm2 restart ecosystem.config.js --only mono-portal-api --env production
