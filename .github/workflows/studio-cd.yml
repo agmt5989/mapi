@@ -15,7 +15,7 @@ jobs:
       - name: Deploy
         uses: easingthemes/ssh-deploy@v2
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          SSH_PRIVATE_KEY: ${{ secrets.STUDIO_KEY }}
           SOURCE: "./"
           REMOTE_HOST: ${{ secrets.STUDIO_SERVER_HOST }}
           REMOTE_USER: ${{ secrets.STUDIO_SERVER_USERNAME }}
