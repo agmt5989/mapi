@@ -30,6 +30,7 @@ jobs:
           port: "22"
           script: |
             cd mono-portal-api
+            git checkout develop
             git pull
             rm -rf build
             npm i
