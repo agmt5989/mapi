@@ -3,7 +3,10 @@ name: Integration Testing For Studio
 on:
   push:
     branches:
-      cicd
+      - cicd
+  pull_request:
+    branches:
+      - cicd
 
 jobs:
   build:
