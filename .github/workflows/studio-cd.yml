@@ -9,16 +9,28 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Execute
+      - name: Deploy
+        uses: easingthemes/ssh-deploy@v2
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          SOURCE: "./"
+          REMOTE_HOST: ${{ secrets.STUDIO_SERVER_HOST }}
+          REMOTE_USER: ${{ secrets.STUDIO_SERVER_USERNAME }}
+          TARGET: "/home/ubuntu/mono-portal-api"
+
+      - name: Execute pm2 after every deploy
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.STUDIO_SERVER_HOST }}
           username: ${{ secrets.STUDIO_SERVER_USERNAME }}
-          port: 22
           key: ${{ secrets.STUDIO_KEY }}
+          port: "22"
           script: |
             cd mono-portal-api
             git pull
-            npm i && npm run build
+            #export NVM_DIR=~/.nvm
+            #source ~/.nvm/nvm.sh
+            npm i
+            npm run build
             cd ~
-            pm2 start --only mono-portal-api --env production && pm2 restart ecosystem.config.js --only mono-portal-api
+            pm2 restart ecosystem.config.js --only mono-home --env production
